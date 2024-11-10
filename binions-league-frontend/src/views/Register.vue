@@ -8,13 +8,15 @@
         <input v-model="email" type="email" placeholder="Email" required />
         <input v-model="password" type="password" placeholder="Password" required />
         <button type="submit">Sign Up</button>
-        <button class="loginbtn" >Login</button>
+        <button type="button" class="loginbtn" @click="goToLogin">Login</button> 
       </form>
     </div>
   </div>
 </template>
 
 <script>
+import { useToast } from 'vue-toastification';
+
 export default {
   data() {
     return {
@@ -25,10 +27,21 @@ export default {
   },
   methods: {
     register() {
-      console.log('Register', this.name, this.email);
-      // After registering, navigate to login page
+    
+      this.toast.success('Registration successful!...');
+
+      setTimeout(() => {
+        this.$router.push('/login');
+      }, 1000);
+    },
+    goToLogin() {
+  
       this.$router.push('/login');
     },
+  },
+  created() {
+   
+    this.toast = useToast();
   },
 };
 </script>
@@ -38,7 +51,7 @@ export default {
 html, body, #app {
   height: 100%;
   margin: 0;
-  padding:0;
+  padding: 0;
 }
 
 .register-screen {
@@ -51,10 +64,12 @@ html, body, #app {
   background-size: cover;
   overflow: hidden;
 }
-img{
+
+img {
   width: 150px;
   height: 150px;
 }
+
 h2 {
   font-size: 2em;
   color: #ffffff;
@@ -105,29 +120,26 @@ button {
   color: #ffffff;
   transition: background-color 0.3s ease-in-out;
   font-weight: bold;
- 
 }
 
- .loginbtn{
+.loginbtn {
   padding: 12px;
   font-size: 1em;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  background:  #fff; 
+  background: #fff; 
   color: #FFD700;
   transition: background-color 0.3s ease-in-out;
   margin-top: 20px;
   font-weight: bold;
 }
 
-
-
 button:hover {
   background-color: #e6b800; 
 }
 
-.loginbtn:hover{
+.loginbtn:hover {
   color: #fff;
 }
 </style>
