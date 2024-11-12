@@ -36,6 +36,7 @@ import { useToast } from 'vue-toastification';
         this.toast.error('Please enter valid credentials.');
       }
     },
+  
   },
   created() {
     this.toast = useToast();
