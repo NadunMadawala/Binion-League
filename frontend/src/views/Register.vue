@@ -7,7 +7,7 @@
         <input v-model="name" type="text" placeholder="Name" required />
         <input v-model="email" type="email" placeholder="Email" required />
         <input v-model="password" type="password" placeholder="Password" required />
-        <button type="submit">Sign Up</button>
+        <button type="submit" >Sign Up</button>
         <button type="button" class="loginbtn" @click="goToLogin">Login</button> 
       </form>
     </div>
@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { useToast } from 'vue-toastification';
 
 export default {
@@ -26,40 +27,33 @@ export default {
     };
   },
   methods: {
-    register() {
-    
-      // this.toast.success('Registration successful!...');
-      this.toast.success('Registration successful!...', {
-        position: "top-right",
-        timeout: 3000,
-        closeOnClick: true,
-        pauseOnFocusLoss: true,
-        pauseOnHover: true,
-        draggable: true,
-        draggablePercent: 0.6,
-        showCloseButtonOnHover: true,
-        hideProgressBar: true,
-        closeButton: "button",
-        icon: true,
-        rtl: false
-      });
+    async register() {
+      try {
+        const response = await axios.post(`${process.env.VUE_APP_API_URL}/auth/register`, {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+        });
 
-      setTimeout(() => {
+        // Store the JWT token in localStorage or a secure cookie
+        localStorage.setItem('token', response.data.token);
+        this.toast.success('Registration successful! Redirecting to login page...');
+
+        // Redirect to login page
         this.$router.push('/login');
-      }, 1000);
+      } catch (error) {
+        this.toast.error(error.response?.data?.msg || 'Registration failed. Please try again.');
+      }
     },
     goToLogin() {
-  
       this.$router.push('/login');
     },
   },
   created() {
-   
     this.toast = useToast();
   },
 };
 </script>
-
 <style scoped>
 
 html, body, #app {
