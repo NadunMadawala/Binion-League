@@ -1,50 +1,57 @@
 <template>
-    <div class="login">
-      <img src="../assets/Logo_name_correct-removebg-preview.png" alt="logoWithNoBG">
-      <h2>Login</h2>
-      <div class="form-container">
+  <div class="login">
+    <img src="../assets/Logo_name_correct-removebg-preview.png" alt="logoWithNoBG">
+    <h2>Login</h2>
+    <div class="form-container">
       <form @submit.prevent="login">
         <input v-model="email" type="email" placeholder="Email" required />
         <input v-model="password" type="password" placeholder="Password" required />
         <button type="submit">Login</button>
-        <button type="button" class="regbtn"  @click="goToRegister" >Register</button>
+        <button type="button" class="regbtn" @click="goToRegister">Register</button>
       </form>
     </div>
   </div>
-  </template>
-  
-  <script>
+</template>
 
+<script>
+import axios from 'axios';
 import { useToast } from 'vue-toastification';
-  export default {
-    data() {
-      return {
-        email: '',
-        password: '',
-      };
-    },
-    methods: {
-      login() {
-      // Logic for login validation, e.g., calling an API
-      if (this.email && this.password) {
-        this.toast.success('Login successful!..');
 
-        setTimeout(() => {
-          this.$router.push('/avatar-selection');
-        }, 2000);
-      } else {
-        this.toast.error('Please enter valid credentials.');
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        const response = await axios.post(`${process.env.VUE_APP_API_URL}/auth/login`, {
+          email: this.email,
+          password: this.password,
+        });
+
+        // Save the token (using localStorage or a secure cookie)
+        localStorage.setItem('token', response.data.token);
+        this.toast.success('Login successful! Redirecting to avatar selection...');
+
+        // Redirect to avatar selection
+        this.$router.push('/avatar-selection');
+      } catch (error) {
+        this.toast.error(error.response?.data?.msg || 'Login failed. Please try again.');
       }
     },
-  
+    goToRegister() {
+      this.$router.push('/register');
+    },
   },
   created() {
     this.toast = useToast();
   },
 };
-  </script>
-  
-  <style scoped>
+</script>
+<style scoped>
 
 html, body, #app {
   height: 100%;
@@ -140,4 +147,3 @@ button:hover {
   color: #fff;
 }
 </style>
-  

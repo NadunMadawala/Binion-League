@@ -4,7 +4,8 @@
       <img src="../assets/Corrected logo without bg.png" alt="logoWithNoBG" class="headerLogo">
       <img src="../assets/Logo_name_correct-removebg-preview.png" alt="logoWithNoBG" class="headerName">
       <div class="userName">
-        <h2>$userName</h2>
+        <div class="avatar-logo"></div>
+        <h3>$userName</h3>
       </div>
     </div>
    
@@ -80,14 +81,24 @@ export default {
 }
 
 .userName {
-  color: #ffffff;
-}
+    color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    gap: 10px; 
+  }
+  .avatar-logo{
+    height: 40px;
+    width: 40px;
+    background: white;
+    border-radius: 50%;
+  }
 
 h2 {
   font-size: 2em;
   color: #ffffff;
   margin-top: 0;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
   text-shadow: 1px 1px 4px #000; 
 }
 
@@ -95,6 +106,9 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  max-width: 60%;
+  margin-left: 20%;
+ 
 }
 
 .avatar {
