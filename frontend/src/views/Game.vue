@@ -37,6 +37,7 @@
           <div class="time">Time remaining : 20s </div>
           <div class="life-count">Lifes: </div>
           <h4>{{ status }}</h4>
+          <button @click="shuffleCards" class="navbtn">Restart Game</button>
         </div>
       </div>
     </div>
@@ -44,6 +45,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import {computed, ref,watch } from 'vue';
 import Card from '../components/Card.vue';
 
@@ -71,6 +73,23 @@ export default {
       return remainingCards / 2
     })
 
+    const shuffleCards = ()=>{
+      cardList.value =  _.shuffle(cardList.value)
+    }
+
+    const restartGame = () =>{
+      shuffleCards()
+
+      cardList.value = cardList.value.map((card,index) =>{
+        return{
+          ...card,
+          matched:false,
+          position:index,
+          visible:false,
+        }
+      })
+    }
+
     for (let i = 0; i < 16; i++) {
       cardList.value.push({
         value:8,
@@ -94,12 +113,12 @@ export default {
           const cardTwo= currentValue[1]
 
           if(cardOne.faceValue ===cardTwo.faceValue){
-            status.value= 'Matched...!'
+            
 
             cardList.value[cardOne.position].matched=true
             cardList.value[cardTwo.position].matched=true
           }else{
-            status.value='Mismatch..!'
+            
             
             cardList.value[cardOne.position].visible=false
             cardList.value[cardTwo.position].visible=false
@@ -117,7 +136,8 @@ export default {
       flipCard,
       userSelection ,
       status,
-      
+      shuffleCards,
+      restartGame,
     };
   },
 };
@@ -256,6 +276,7 @@ export default {
   }
   .game-detail{
     margin-bottom: 20px;
+    border:5px solid #ccc ;
   padding: 10px;
   border-radius: 15px;
   backdrop-filter: blur(10px); 
@@ -263,6 +284,7 @@ export default {
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
   }
   .score-board{
+    border:5px solid #ccc ;
     padding: 10px;
   border-radius: 15px;
   backdrop-filter: blur(10px); 
