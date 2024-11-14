@@ -20,7 +20,9 @@
         </div>
       </div>
       <section class="game-board">
-        <Card v-for="(card, index) in cardList" :key="`card-${index}`" 
+        <Card v-for="(card, index) in cardList" 
+        :key="`card-${index}`" 
+        :matched="card.matched"
         :value="card.value" 
         :visible="card.visible" 
         :position="card.position"
@@ -34,7 +36,7 @@
         <div class="score-board">
           <div class="time">Time remaining : 20s </div>
           <div class="life-count">Lifes: </div>
-          <h4>{{ userSelection }}</h4>
+          <h4>{{ status }}</h4>
         </div>
       </div>
     </div>
@@ -42,7 +44,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref,watch } from 'vue';
 import Card from '../components/Card.vue';
 
 export default {
@@ -53,12 +55,14 @@ export default {
   setup() {
     const cardList = ref([]);
     const userSelection=ref([]);
+    const status =ref("")
 
     for (let i = 0; i < 16; i++) {
       cardList.value.push({
         value:i,
         visible:false,
-        position:i
+        position:i,
+        matched:false,
       });
     }
     const flipCard =(playload)=>{
@@ -70,8 +74,31 @@ export default {
         userSelection.value[0]=playload
       }
     }
+    watch(userSelection,(currentValue)=>{
+      if(currentValue.length===2){
+          const cardOne= currentValue[0]
+          const cardTwo= currentValue[1]
 
-    return { cardList, flipCard,userSelection };
+          if(cardOne.faceValue ===cardTwo.faceValue){
+            status.value= 'Matched...!'
+
+            cardList.value[cardOne.position].matched=true
+            cardList.value[cardTwo.position].matched=true
+          }else{
+            status.value='Mismatch..!'
+            
+            cardList.value[cardOne.position].visible=false
+            cardList.value[cardTwo.position].visible=false
+          }
+        
+
+
+
+        userSelection.value.length = 0
+      }
+    },{deep:true})
+
+    return { cardList, flipCard,userSelection ,status};
   },
 };
 </script>
