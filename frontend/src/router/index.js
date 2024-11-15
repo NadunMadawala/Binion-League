@@ -4,6 +4,7 @@ import Register from "../views/Register.vue";
 import Login from "../views/Login.vue";
 import AvatarSelection from "../views/AvatarSelection.vue";
 import Game from "../views/Game.vue";
+import BananaGame from "../views/BananaGame.vue";
 
 const routes = [
   { path: "/", name: "Splash", component: SplashScreen },
@@ -15,6 +16,7 @@ const routes = [
     component: AvatarSelection,
   },
   { path: "/game", name: "Game", component: Game },
+  { path: "/bananaGame", name: "BananaGame", component: BananaGame },
 ];
 
 const router = createRouter({

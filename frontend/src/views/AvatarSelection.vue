@@ -4,8 +4,10 @@
       <img src="../assets/Corrected logo without bg.png" alt="logoWithNoBG" class="headerLogo">
       <img src="../assets/Logo_name_correct-removebg-preview.png" alt="logoWithNoBG" class="headerName">
       <div class="userName">
-        <div class="avatar-logo"></div>
-        <h3>$userName</h3>
+        <div class="avatar-logo">
+          <img v-if="avatarImage" :src="avatarImage" alt="User Avatar" class="user-avatar" />
+        </div>
+        <h3>{{username}}</h3>
       </div>
     </div>
    
@@ -22,25 +24,44 @@
 </template>
 
 <script>
+
+import BobImage from '../assets/AvatarImages/Bob.png';
+import DaveImage from '../assets/AvatarImages/Dave.png';
+import JerryImage from '../assets/AvatarImages/Jerry.png';
+import KevinImage from '../assets/AvatarImages/Kevin.png';
+import PhillImage from '../assets/AvatarImages/Phill.png';
+import StuartImage from '../assets/AvatarImages/Stuart.png';
+import TomImage from '../assets/AvatarImages/Tom.png';
+import CarlImage from '../assets/AvatarImages/Carl.png';
+
 export default {
   data() {
     return {
       avatars: [
-        { id: 1, name: 'Bob', image: '../assets/AvatarImages/MinionsAvatar7.jpeg' },
-        { id: 2, name: 'Carl', image: '../assets/AvatarImages/Cael.png' },
-        { id: 3, name: 'Dave', image: '../assets/AvatarImages/Dave.png' },
-        { id: 4, name: 'Jerry', image: '../assets/AvatarImages/Jerry.png' },
-        { id: 5, name: 'Kevin', image: '../assets/AvatarImages/Kevin.png' },
-        { id: 6, name: 'Phill', image: '../assets/AvatarImages/Phill.png' },
-        { id: 7, name: 'Stuart', image: '../assets/AvatarImages/Stuart.png' },
-        { id: 8, name: 'Tom', image: '../assets/AvatarImages/Tom.png' },
+        { id: 1, name: 'Bob', image: BobImage },
+        { id: 2, name: 'Carl', image: CarlImage },
+        { id: 3, name: 'Dave', image: DaveImage },
+        { id: 4, name: 'Jerry', image: JerryImage  },
+        { id: 5, name: 'Kevin', image: KevinImage },
+        { id: 6, name: 'Phill', image: PhillImage },
+        { id: 7, name: 'Stuart', image: StuartImage },
+        { id: 8, name: 'Tom', image: TomImage },
       ],
       selectedAvatar: null,
+      username: localStorage.getItem('username'),
+      avatar: localStorage.getItem('avatar'),
     };
+  },
+  computed: {
+    avatarImage() {
+      const avatar = this.avatars.find(a => a.name === localStorage.getItem('avatar'));
+      return avatar ? avatar.image : null;
+    },
   },
   methods: {
     selectAvatar(avatar) {
       this.selectedAvatar = avatar;
+      localStorage.setItem('avatar', avatar);
       // Logic to save selected avatar, for example by saving in Vuex store or making an API call
       this.$router.push('/game');
     },
