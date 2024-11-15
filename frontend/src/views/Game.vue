@@ -33,6 +33,7 @@
       </section>
       <div class="scoreboard-container">
         <div class="game-detail">
+          <h2>Score : </h2>
           <div class="level">Mode:</div>
           <div class="level">Level:</div>
         </div>
@@ -174,8 +175,13 @@ export default {
       cardList.value[payload.position].visible = true;
 
       if (userSelection.value[0]) {
-        if (userSelection.value[0].position === payload.position && userSelection.value[0].value === payload.value) {
-          return;
+        if (
+          userSelection.value[0].position === 
+          payload.position && 
+          userSelection.value[0].faceValue === 
+          payload.faceValue
+         )   {
+          return
         } else {
           userSelection.value[1] = payload;
         }
@@ -192,14 +198,14 @@ export default {
           const cardOne = currentValue[0];
           const cardTwo = currentValue[1];
 
-          if (cardOne.value === cardTwo.value) {
+          if (cardOne.faceValue === cardTwo.faceValue) {
             cardList.value[cardOne.position].matched = true;
             cardList.value[cardTwo.position].matched = true;
           } else {
             setTimeout(() => {
               cardList.value[cardOne.position].visible = false;
               cardList.value[cardTwo.position].visible = false;
-            }, 2000);
+            }, 1000);
           }
 
           userSelection.value.length = 0;
