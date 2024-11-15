@@ -27,17 +27,23 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await axios.post(`${process.env.VUE_APP_API_URL}/auth/login`, {
+        const response = await axios.post(`http://localhost:5000/api/auth/login`, {
           email: this.email,
           password: this.password,
         });
+  
+        if (response.data.msg === "User login successfully") {
+          // Save the token (using localStorage or a secure cookie)
+        //localStorage.setItem('token', response.data.token);
+      this.toast.success('Login successful! Redirecting...');
 
-        // Save the token (using localStorage or a secure cookie)
-        localStorage.setItem('token', response.data.token);
-        this.toast.success('Login successful! Redirecting to avatar selection...');
+      // Store userId and username in localStorage
+      localStorage.setItem('userId', response.data.userId);
+      localStorage.setItem('username', response.data.username);
 
-        // Redirect to avatar selection
-        this.$router.push('/avatar-selection');
+      // Redirect to the avatar selection page or wherever appropriate
+      this.$router.push('/avatar-selection');
+    }
       } catch (error) {
         this.toast.error(error.response?.data?.msg || 'Login failed. Please try again.');
       }
@@ -75,10 +81,15 @@ img{
 }
 h2 {
   font-size: 2em;
-  color: #ffffff;
+  color: #FFD700;
   margin-top: 0;
   margin-bottom: 20px;
   text-shadow: 1px 1px 4px #000; 
+  padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+    height: fit-content;
 }
 
 .form-container {

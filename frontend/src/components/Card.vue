@@ -1,6 +1,10 @@
 <script>
 export default{
     props:{
+        matched:{
+            type:Boolean,
+            default:false
+        },
         position:{
             type:Number,
             Required:true
@@ -32,7 +36,7 @@ export default{
 <template>
     <div class="card" @click="selectCard">
         <div v-if="visible" class="card-face is-front">
-        {{value}}
+        {{value}}-{{ position }}-{{ matched }}
     </div>
     
     <div v-else class="card-face is-back">

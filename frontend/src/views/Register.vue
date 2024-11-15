@@ -29,14 +29,17 @@ export default {
   methods: {
     async register() {
       try {
-        const response = await axios.post(`${process.env.VUE_APP_API_URL}/auth/register`, {
+        const apiUrl = import.meta.env.VUE_APP_API_URL;
+        console.log(apiUrl)
+        const response = await axios.post(`http://localhost:5000/api/auth/register`, {
           name: this.name,
           email: this.email,
           password: this.password,
-        });
+});
+
 
         // Store the JWT token in localStorage or a secure cookie
-        localStorage.setItem('token', response.data.token);
+        // localStorage.setItem('token', response.data.token);
         this.toast.success('Registration successful! Redirecting to login page...');
 
         // Redirect to login page
@@ -80,10 +83,16 @@ img {
 
 h2 {
   font-size: 2em;
-  color: #ffffff;
+  color: #FFD700;
   margin-top: 0;
   margin-bottom: 20px;
   text-shadow: 1px 1px 4px #000; 
+  text-align: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+    height: fit-content;
 }
 
 .form-container {
