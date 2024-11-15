@@ -63,7 +63,7 @@ export default {
       this.selectedAvatar = avatar;
       localStorage.setItem('avatar', avatar);
       // Logic to save selected avatar, for example by saving in Vuex store or making an API call
-      this.$router.push('/game');
+      this.$router.push('/home');
     },
   },
 };
