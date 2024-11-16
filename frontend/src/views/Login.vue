@@ -35,7 +35,7 @@ export default {
         if (response.data.msg === "User login successfully") {
           // Save the token (using localStorage or a secure cookie)
         //localStorage.setItem('token', response.data.token);
-      this.toast.success('Login successful! Redirecting...');
+      this.toast.success('Login successful! ...');
 
       // Store userId and username in localStorage
       localStorage.setItem('userId', response.data.userId);

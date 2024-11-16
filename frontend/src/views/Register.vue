@@ -38,8 +38,8 @@ export default {
 });
 
 
-        // Store the JWT token in localStorage or a secure cookie
-        // localStorage.setItem('token', response.data.token);
+        
+        localStorage.setItem('token', response.data.token);
         this.toast.success('Registration successful! Redirecting to login page...');
 
         // Redirect to login page

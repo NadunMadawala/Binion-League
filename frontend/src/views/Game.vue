@@ -20,7 +20,7 @@
         <div class="avatar">
           <img v-if="avatarImage" :src="avatarImage" alt="User Avatar" class="user-avatar" />
         </div>
-        <h2 style="color: burlywood;">{{ username }}</h2>
+        <h2 >{{ username }}</h2>
       </div>
     </div>
     <h3>Choose correct pairs..!</h3>
@@ -52,7 +52,7 @@
         </div>
         <div class="score-board">
           <div class="time">Time : {{ timer }}s</div>
-          <div class="life-count"> 🍌 Lives:</div>
+          <div class="life-count"> 🍌 Lives: {{ lives }}</div>
           <h4>{{ status }}</h4>
           <button @click="restartGame" class="navbtn" :disabled="!gameStarted">{{ buttonLabel }}</button>
         </div>
@@ -77,6 +77,8 @@
 import _ from 'lodash';
 import { computed, ref, watch } from 'vue';
 import Card from '../components/Card.vue';
+import { useRouter } from 'vue-router';
+import { useToast } from "vue-toastification";
 
 export default {
   name: 'App',
@@ -95,6 +97,9 @@ export default {
     const showStartModal = ref(true);
     const gameStarted = ref(false);
     const score = ref(0);
+    const router = useRouter();  
+    const toast = useToast();   
+    const lives = ref(parseInt(localStorage.getItem('lives')) || 0); 
 
     // Game status
     const status = computed(() => {
@@ -105,7 +110,8 @@ export default {
         return `Remaining Pairs: ${remainingPairs.value}`;
       }
     });
-
+    
+ 
     // Count remaining pairs
     const remainingPairs = computed(() => {
       const remainingCards = cardList.value.filter((card) => card.matched === false).length;
@@ -156,11 +162,18 @@ export default {
       restartGame();
     };
 
-    // Quit the game
-    const quitGame = () => {
-      showModal.value = false;
-      // Logic to quit the game, for example redirecting to the home page
-      alert("You have quit the game.");
+      // Quit the game
+      const quitGame = () => {
+            showModal.value = false;
+
+      // Show toast notification
+      toast.info("You have quit the game", {
+        timeout: 2000,
+        closeOnClick: true,
+      });
+
+      // Navigate to the Home view
+      router.push('/home');
     };
 
     // Get more lifes
@@ -168,6 +181,13 @@ export default {
       showModal.value = false;
       timer.value = 30; // Reset timer to 30 seconds
       startTimer(); // Restart timer
+      toast.info("Collect the Lives", {
+        timeout: 2000,
+        closeOnClick: true,
+      });
+
+      // Navigate to the Home view
+      router.push('/bananagame');
     };
 
     // Initialize cards
@@ -257,6 +277,8 @@ export default {
       startGame,
       gameStarted,
       score,
+      quitGame,
+      lives,
     };
   },
 };
@@ -311,8 +333,14 @@ export default {
 }
 
 .time{
-  color: rgb(95, 11, 11);
-  transform: scale(1.1);
+  color: #FFD700;
+  margin: 0;
+  height: fit-content;
+  text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);  transform: scale(1.1);
   font-weight: bolder;
 }
 h3 {
@@ -328,7 +356,41 @@ h3 {
     border-radius: 10px;
     box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
-
+h2{
+  color: #ffffff;
+  margin: 0;
+  height: fit-content;
+  text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
+h4{
+  color: #FFD700;
+  margin: 0;
+  height: fit-content;
+  top: 20%;
+  left: 45%;
+  text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
+.life-count{
+  color: #FFD700;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: fit-content;
+  top: 20%;
+  left: 45%;
+  text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
 .game-container {
   display: flex;
   align-items: center;
@@ -472,6 +534,7 @@ h3 {
 .modal-buttons {
   display: flex;
   justify-content: space-around;
+  gap: 20px;
 }
 
 .modal-btn {

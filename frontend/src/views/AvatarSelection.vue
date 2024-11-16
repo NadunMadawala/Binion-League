@@ -116,13 +116,28 @@ export default {
   }
 
 h2 {
-  font-size: 2em;
-  color: #ffffff;
-  margin-top: 0;
-  /* margin-bottom: 20px; */
-  text-shadow: 1px 1px 4px #000; 
+  color: #FFD700;
+  margin: 0;
+  height: fit-content;
+  position: absolute;
+  top: 20%;
+  left: 45%;
+  text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
-
+h3{
+  color: #ffffff;
+  margin: 0;
+  height: fit-content;
+  text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
 .avatars {
   display: flex;
   flex-wrap: wrap;
@@ -137,7 +152,7 @@ h2 {
   text-align: center;
   cursor: pointer;
   transition: transform 0.3s ease;
-
+  object-fit: scale-down;
 }
 
 .avatar:hover {
@@ -145,13 +160,14 @@ h2 {
 }
 
 .avatar-container {
-  width: 100px; 
-  height: 100px; 
+  width: 150px; 
+  height: 150px; 
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid #FFD700; 
+  background-color: #ffffff;
 }
 
 

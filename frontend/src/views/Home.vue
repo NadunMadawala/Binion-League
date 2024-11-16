@@ -17,7 +17,7 @@
             <a class="navbtn">Tutorial & Story</a>
             <a class="navbtn">Leaderboard</a>
             <a class="navbtn">Account</a>
-            <button class="logoutbtn">Logout</button>
+            <button class="logoutbtn" >Logout</button>
           </div>
         </div>
           <div class="mode-container">
@@ -230,9 +230,14 @@
   
 }
 h3{
+  color: #ffffff;
   margin: 0;
-  color: black;
-  font-weight: bolder;
+  height: fit-content;
+  text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
 li{
   list-style: none;
