@@ -14,10 +14,10 @@
         <div class="nav-panel">
           <div class="nav-container">
             <a href="/home" class="navbtn">Home</a>
-            <a class="navbtn">Tutorial & Story</a>
-            <a class="navbtn">Leaderboard</a>
-            <a class="navbtn">Account</a>
-            <button class="logoutbtn" >Logout</button>
+            <a href="/tutorial" class="navbtn">Tutorial & Story</a>
+            <a href="/leaderboard" class="navbtn">Leaderboard</a>
+            <a href="/account" class="navbtn">Account</a>
+            <button class="logoutbtn"@click="logout">Logout</button>
           </div>
         </div>
           <div class="mode-container">
@@ -55,6 +55,7 @@
   
   export default {
     data(){
+      
     
     return{
       username: localStorage.getItem('username'),
@@ -65,6 +66,7 @@
     goToMediumGame() {
       this.$router.push('/game');
     },
+    
   },
 }
   
@@ -232,6 +234,7 @@
 h3{
   color: #ffffff;
   margin: 0;
+  margin-top: 10px;
   height: fit-content;
   text-align: center;
     padding: 10px;
@@ -247,7 +250,7 @@ li{
   
 }
 .easyContainer,.mediumContainer,.hardContainer{
-  height: 250px;
+  height: 260px;
   width: 240px;
   background-color: #FFFFFF;
   border-radius: 34px;
@@ -264,12 +267,12 @@ li{
 
   h2 {
     color: #FFD700;
-  margin: 0;
-  height: fit-content;
-  position: absolute;
-  top: 20%;
-  left: 45%;
-  text-align: center;
+    margin: 0;
+    height: fit-content;
+    position: absolute;
+    top: 20%;
+    left: 45%;
+    text-align: center;
     padding: 10px;
     background: rgba(0, 0, 0, 0.6);
     border-radius: 10px;

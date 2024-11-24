@@ -31,7 +31,7 @@
           <a class="navbtn">Tutorial & Story</a>
           <a class="navbtn">Leaderboard</a>
           <a class="navbtn">Account</a>
-          <button class="logoutbtn">Logout</button>
+          <button class="logoutbtn" @click="logout">Logout</button>
         </div>
       </div>
       <section class="game-board">
@@ -70,6 +70,18 @@
         </div>
       </div>
     </div>
+    <!-- Modal for running out of lives notification -->
+    <div v-if="showLivesModal" class="modal-overlay">
+      <div class="modal">
+        <h2>Out of Lives!</h2>
+        <p>You have run out of lives. Would you like to continue?</p>
+        <div class="modal-buttons">
+          <button class="modal-btn quit" @click="quitGame">Quit</button>
+          <button class="modal-btn get-more-lifes" @click="getMoreLifes">Get More 🍌 Lives</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -99,7 +111,9 @@ export default {
     const score = ref(0);
     const router = useRouter();  
     const toast = useToast();   
-    const lives = ref(parseInt(localStorage.getItem('lives')) || 0); 
+    const lives = ref(parseInt(localStorage.getItem('lives')) || 3); 
+    const showLivesModal = ref(false); // Modal for when lives become zero
+
 
     // Game status
     const status = computed(() => {
@@ -111,6 +125,20 @@ export default {
       }
     });
     
+    const logout = () => {
+  // Clear all local storage items
+  localStorage.clear();
+
+  // Show toast notification for logout
+  toast.info("You have successfully logged out", {
+    timeout: 2000,
+    closeOnClick: true,
+  });
+
+  // Navigate to the login page
+  router.push('/login');
+};
+
  
     // Count remaining pairs
     const remainingPairs = computed(() => {
@@ -178,17 +206,19 @@ export default {
 
     // Get more lifes
     const getMoreLifes = () => {
-      showModal.value = false;
-      timer.value = 30; // Reset timer to 30 seconds
-      startTimer(); // Restart timer
-      toast.info("Collect the Lives", {
-        timeout: 2000,
-        closeOnClick: true,
-      });
+  showModal.value = false; // Hide "Time Over" modal
+  showLivesModal.value = false; // Hide "Out of Lives" modal
+  timer.value = 30; // Reset timer to 30 seconds
+  startTimer(); // Restart timer
+  toast.info("Collect the Lives", {
+    timeout: 2000,
+    closeOnClick: true,
+  });
 
-      // Navigate to the Home view
-      router.push('/bananagame');
-    };
+  // Navigate to the Banana Game view to collect more lives
+  router.push('/bananagame');
+};
+
 
     // Initialize cards
     const cardItem = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -241,17 +271,22 @@ export default {
         if (currentValue.length === 2) {
           const cardOne = currentValue[0];
           const cardTwo = currentValue[1];
-
           if (cardOne.faceValue === cardTwo.faceValue) {
-            cardList.value[cardOne.position].matched = true;
-            cardList.value[cardTwo.position].matched = true;
-            score.value += 1; // Increment score for correct pair
-          } else {
-            setTimeout(() => {
-              cardList.value[cardOne.position].visible = false;
-              cardList.value[cardTwo.position].visible = false;
-            }, 1000);
-          }
+              cardList.value[cardOne.position].matched = true;
+              cardList.value[cardTwo.position].matched = true;
+              score.value += 1; // Increment score for correct pair
+            } else {
+              setTimeout(() => {
+                cardList.value[cardOne.position].visible = false;
+                cardList.value[cardTwo.position].visible = false;
+                lives.value--; // Decrement life count on mismatch
+                localStorage.setItem('lives', lives.value); // Update local storage with the new lives count
+                if (lives.value <= 0) {
+                  showLivesModal.value = true; // Show the "Out of Lives" modal
+                  clearInterval(timerInterval);
+                }
+  }, 1000);
+}
 
           userSelection.value.length = 0;
         }
@@ -279,6 +314,8 @@ export default {
       score,
       quitGame,
       lives,
+  showLivesModal,
+  logout,
     };
   },
 };

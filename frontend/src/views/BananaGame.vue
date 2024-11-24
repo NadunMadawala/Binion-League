@@ -64,7 +64,7 @@ export default {
     const userAnswer = ref('');
     const resultMessage = ref('');
     const showModal = ref(false);
-    const timer = ref(10);
+    const timer = ref(15);
     const lives = ref(parseInt(localStorage.getItem('lives')) || 0);
     let timerInterval = null;
 
@@ -97,14 +97,14 @@ export default {
     // Timer function
     const startTimer = () => {
       clearInterval(timerInterval); // Clear previous timer if any
-      timer.value = 10; // Reset timer to 30 seconds
+      timer.value = 15; // Reset timer to 30 seconds
 
       timerInterval = setInterval(() => {
         if (timer.value > 0) {
           timer.value--;
         } else {
           clearInterval(timerInterval);
-          showModal.value = true; // Show the modal when time is over
+          showModal.value = true; 
         }
       }, 1000);
     };
@@ -143,7 +143,6 @@ export default {
 
     // Method to continue the game
     const continueGame = () => {
-      // Clear the modal and navigate to game page with updated lives
       showModal.value = false;
       router.push('/game');
     };
@@ -329,15 +328,11 @@ export default {
 }
 
 .modal {
-  
-  
   border-radius: 10px;
   width: 400px;
   text-align: center;
-
-    height: fit-content;
-
-    border: 1px solid#E8B931;
+  height: fit-content;
+  border: 1px solid#E8B931;
   padding: 10px;
   border-radius: 15px;
   backdrop-filter: blur(10px);

@@ -7,8 +7,8 @@
         <input v-model="name" type="text" placeholder="Name" required />
         <input v-model="email" type="email" placeholder="Email" required />
         <input v-model="password" type="password" placeholder="Password" required />
-        <button type="submit" >Sign Up</button>
-        <button type="button" class="loginbtn" @click="goToLogin">Login</button> 
+        <button type="submit">Sign Up</button>
+        <button type="button" class="loginbtn" @click="goToLogin">Login</button>
       </form>
     </div>
   </div>
@@ -28,37 +28,39 @@ export default {
   },
   methods: {
     async register() {
+      const toast = useToast(); 
       try {
-        const apiUrl = import.meta.env.VUE_APP_API_URL;
-        console.log(apiUrl)
-        const response = await axios.post(`http://localhost:5000/api/auth/register`, {
+        // Use environment variable for API URL
+        const apiUrl = import.meta.env.VITE_APP_API_URL; 
+        if (!apiUrl) {
+          throw new Error("API URL is not defined. Please check your environment configuration.");
+        }
+
+        const response = await axios.post(`${apiUrl}/api/auth/register`, {
           name: this.name,
           email: this.email,
           password: this.password,
-});
+        });
 
+        // Show success toast
+        toast.success('Registration successful! Redirecting to login page...');
 
-        
-        localStorage.setItem('token', response.data.token);
-        this.toast.success('Registration successful! Redirecting to login page...');
-
-        // Redirect to login page
+        // Redirect to login page after registration
         this.$router.push('/login');
       } catch (error) {
-        this.toast.error(error.response?.data?.msg || 'Registration failed. Please try again.');
+        console.error('Error during registration:', error);
+        toast.error(error.response?.data?.msg || 'Registration failed. Please try again.');
       }
     },
     goToLogin() {
       this.$router.push('/login');
     },
   },
-  created() {
-    this.toast = useToast();
-  },
 };
 </script>
-<style scoped>
 
+
+<style scoped>
 html, body, #app {
   height: 100%;
   margin: 0;
@@ -88,11 +90,11 @@ h2 {
   margin-bottom: 20px;
   text-shadow: 1px 1px 4px #000; 
   text-align: center;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-    height: fit-content;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  height: fit-content;
 }
 
 .form-container {
