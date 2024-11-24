@@ -7,7 +7,7 @@
         <div class="avatar-logo">
           <img v-if="avatarImage" :src="avatarImage" alt="User Avatar" class="user-avatar" />
         </div>
-        <h3>{{username}}</h3>
+        <h3>{{name}}</h3>
       </div>
     </div>
    
@@ -24,6 +24,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 
 import BobImage from '../assets/AvatarImages/Bob.png';
 import DaveImage from '../assets/AvatarImages/Dave.png';
@@ -48,7 +50,7 @@ export default {
         { id: 8, name: 'Tom', image: TomImage },
       ],
       selectedAvatar: null,
-      username: localStorage.getItem('username'),
+      name: localStorage.getItem('name'),
       avatar: localStorage.getItem('avatar'),
     };
   },
@@ -59,13 +61,30 @@ export default {
     },
   },
   methods: {
-    selectAvatar(avatar) {
+    async selectAvatar(avatar) {
       this.selectedAvatar = avatar;
-      localStorage.setItem('avatar', avatar);
-      // Logic to save selected avatar, for example by saving in Vuex store or making an API call
-      this.$router.push('/game');
+
+      try {
+        // Get user id from Vuex store
+        const userId = this.$store.state.user.id;
+
+        const response = await axios.post('http://localhost:5000/api/users/update-avatar', {
+          userId,
+          avatar: avatar.name,
+        });
+
+        console.log('Avatar updated successfully:', response.data);
+        this.$store.commit('setUserAvatar', avatar.name);
+
+        this.$router.push('/home');
+      } catch (error) {
+        console.error('Error updating avatar:', error);
+        alert('Failed to update avatar. Please try again.');
+      }
     },
   },
+
+
 };
 </script>
 
@@ -96,7 +115,7 @@ export default {
 
 .header .headerName {
   width: 500px;
-  height: 100px;
+  height: 100px; 
   margin-top: 0;
   justify-content: center;
 }
@@ -108,21 +127,45 @@ export default {
     align-items: center; 
     gap: 10px; 
   }
-  .avatar-logo{
+  /* .avatar-logo{
     height: 40px;
     width: 40px;
     background: white;
     border-radius: 50%;
-  }
+  } */
 
-h2 {
-  font-size: 2em;
-  color: #ffffff;
-  margin-top: 0;
-  /* margin-bottom: 20px; */
-  text-shadow: 1px 1px 4px #000; 
+.user-avatar{
+  height: 60px;
+  width: 60px;
+  background: white;
+  border-radius: 50%;
+  object-fit: scale-down;
 }
 
+h2 {
+  color: #FFD700;
+  margin: 0;
+  height: fit-content;
+  position: absolute;
+  top: 20%;
+  left: 45%;
+  text-align: center;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+h3{
+  color: #ffffff;
+  margin: 0;
+  height: fit-content;
+  text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
 .avatars {
   display: flex;
   flex-wrap: wrap;
@@ -137,7 +180,7 @@ h2 {
   text-align: center;
   cursor: pointer;
   transition: transform 0.3s ease;
-
+  object-fit: scale-down;
 }
 
 .avatar:hover {
@@ -145,27 +188,25 @@ h2 {
 }
 
 .avatar-container {
-  width: 100px; 
-  height: 100px; 
+  width: 150px; 
+  height: 150px; 
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid #FFD700; 
+  background-color: #ffffff;
 }
-
-
-
 
 .avatar-container img {
   width: 100px;
   height: 100px;
   border-radius: 50%;
- 
 }
 
 p {
   margin-top: 10px;
   font-weight: bold;
 }
+
 </style>
