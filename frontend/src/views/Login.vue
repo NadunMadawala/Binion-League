@@ -26,35 +26,37 @@ export default {
   },
   methods: {
     async login() {
-      try {
-        const response = await axios.post(`http://localhost:5000/api/auth/login`, {
-          email: this.email,
-          password: this.password,
+    try {
+      const response = await axios.post(`http://localhost:5000/api/auth/login`, {
+        email: this.email,
+        password: this.password,
+      });
+
+      if (response.data.msg === "User login successfully") {
+        this.toast.success('Login successful!');
+
+        // Store userId, username, and avatar selection status
+        this.$store.commit('setUser', {
+          id: response.data.userId,
+          name: response.data.name,
+          hasSelectedAvatar: response.data.hasSelectedAvatar,
         });
 
-        if (response.data.msg === "User login successfully") {
-          // Save the token (using localStorage or a secure cookie)
-          // localStorage.setItem('token', response.data.token);
-          this.toast.success('Login successful!');
+        this.$store.commit('setToken', response.data.token);
 
-          // Store userId and username in localStorage
-          localStorage.setItem('userId', response.data.userId);
-          localStorage.setItem('name', response.data.name);
-
-          // Check if the user has already selected an avatar
-          const hasSelectedAvatar = localStorage.getItem('hasSelectedAvatar');
-          if (hasSelectedAvatar) {
-            // If the user has selected an avatar before, redirect to the home page
-            this.$router.push('/home');
-          } else {
-            // Otherwise, redirect to the avatar selection page
-            this.$router.push('/avatar-selection');
-          }
+        // Check if the user has already selected an avatar
+        if (response.data.hasSelectedAvatar) {
+          // Redirect to the home page
+          this.$router.push('/home');
+        } else {
+          // Otherwise, redirect to the avatar selection page
+          this.$router.push('/avatar-selection');
         }
-      } catch (error) {
-        this.toast.error(error.response?.data?.msg || 'Login failed. Please try again.');
       }
-    },
+    } catch (error) {
+      this.toast.error(error.response?.data?.msg || 'Login failed. Please try again.');
+    }
+  },
     goToRegister() {
       this.$router.push('/register');
     },

@@ -1,23 +1,24 @@
+// File: controllers/userController.js
+
 const User = require("../models/User");
 
 // Controller to update user's avatar
 const updateUserAvatar = async (req, res) => {
-  const { name, avatar } = req.body;
+  const { userId, avatar } = req.body; // Changed 'name' to 'userId' to use userId instead
 
-  if (!name || !avatar) {
+  if (!userId || !avatar) {
     return res
       .status(400)
-      .json({ msg: "Please provide both username and avatar" });
+      .json({ msg: "Please provide both userId and avatar" });
   }
 
   try {
-    // Find the user by username and update their avatar
-    const user = await User.findOneAndUpdate(
-      { name }, // Corrected to use 'username'
+    // Find the user by userId and update their avatar
+    const user = await User.findByIdAndUpdate(
+      userId,
       { avatar },
       { new: true }
     );
-
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }

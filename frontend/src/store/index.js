@@ -5,9 +5,10 @@ const store = createStore({
   state: {
     user: null,
     token: localStorage.getItem("token") || "",
-    isAuthenticated: !!localStorage.getItem("token"), // Set true if token exists
+    isAuthenticated: !!localStorage.getItem("token"),
     score: 0,
     lifeCount: 3,
+    hasSelectedAvatar: false, // Add to track if the user has selected an avatar
   },
   mutations: {
     setUser(state, user) {
@@ -37,6 +38,14 @@ const store = createStore({
     },
     incrementScore(state, points) {
       state.score += points;
+    },
+    setUserAvatar(state, avatar) {
+      if (state.user) {
+        state.user.avatar = avatar;
+      }
+    },
+    setUserHasSelectedAvatar(state, hasSelectedAvatar) {
+      state.hasSelectedAvatar = hasSelectedAvatar;
     },
   },
   actions: {
@@ -79,7 +88,8 @@ const store = createStore({
             avatar,
           }
         );
-        commit("setUser", response.data.user);
+        commit("setUserAvatar", avatar);
+        commit("setUserHasSelectedAvatar", true);
       } catch (error) {
         console.error("Error updating avatar", error);
         throw error;
@@ -101,6 +111,9 @@ const store = createStore({
     },
     lifeCount(state) {
       return state.lifeCount;
+    },
+    hasSelectedAvatar(state) {
+      return state.hasSelectedAvatar;
     },
   },
 });

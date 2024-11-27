@@ -90,7 +90,7 @@ export default {
       return this.avatars[avatarName] || null;
     },
     logout() {
-      // Clear local storage and redirect to login page
+      
       localStorage.clear();
       this.$router.push('/login');
     }
@@ -159,6 +159,10 @@ export default {
   display: flex;
   justify-content: space-between;
 }
+a{
+  text-decoration: none;  
+  cursor: pointer;
+}
 
 .nav-panel {
   display: flex;
@@ -207,6 +211,7 @@ export default {
   font-weight: bolder;
   border: 3px solid red;
   align-content: center;
+  cursor: pointer;
 }
 
 .logoutbtn:hover {

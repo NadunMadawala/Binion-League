@@ -23,7 +23,7 @@
         </div>
         <div class="board-container">
             <h3>Tutorial</h3>
-            <video width="500" height="300" controls>
+            <video width="800" height="500" controls>
             <source src="../assets/mov_bbb.mp4" type="video/mp4">
             </video>
             <div class="story">
@@ -116,7 +116,7 @@
   .tutorial {
     display: flex;
     flex-direction: column;
-    height:200vh;
+    height:240vh;
     background: url('../assets/background dark.png') no-repeat center center fixed;
     background-size:cover;
     overflow:hidden;
@@ -165,6 +165,11 @@
     justify-content: space-between;
   }
   
+  a{
+  text-decoration: none;  
+  cursor: pointer;
+}
+
   .nav-panel {
     display: flex;
     flex-direction: column;
@@ -196,6 +201,7 @@
     border-radius: 20px;
     font-weight: bold;
     align-content: center;
+    cursor: pointer;
   }
   
   .navbtn:hover {
@@ -213,6 +219,7 @@
     font-weight: bolder;
     border: 3px solid red;
     align-content: center;
+    cursor: pointer;
   }
   
   .logoutbtn:hover {

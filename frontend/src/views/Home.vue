@@ -180,6 +180,7 @@
   font-weight: bolder;
   border: 3px solid red;
   align-content: center;
+  cursor: pointer;
 }
 
 .logoutbtn:hover {
