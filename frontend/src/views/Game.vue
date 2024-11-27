@@ -1,48 +1,62 @@
 <template>
   <div class="game">
-        <!-- Modal for Start Game notification -->
-        <div v-if="showStartModal" class="modal-overlay">
+    <!-- Modal for Start Game notification -->
+    <div v-if="showStartModal" class="modal-overlay">
       <div class="modal">
         <h2>Start Game</h2>
-        <p>To start the game, click the "Start" button below.
-          
-          <li>Choose Correct pairs to Score in given time. </li>
+        <p>
+          To start the game, click the "Start" button below.
+
+          <li>Choose Correct pairs to Score in given time.</li>
           <li>Every missmatch will cost a 🍌 life.</li>
-        
         </p>
         <button class="modal-btn start-game" @click="startGame">Start</button>
       </div>
     </div>
     <div class="header">
-      <img src="../assets/Corrected logo without bg.png" alt="logoWithNoBG" class="headerLogo" />
-      <img src="../assets/Logo_name_correct-removebg-preview.png" alt="logoWithNoBG" class="headerName" />
+      <img
+        src="../assets/Corrected logo without bg.png"
+        alt="logoWithNoBG"
+        class="headerLogo"
+      />
+      <img
+        src="../assets/Logo_name_correct-removebg-preview.png"
+        alt="logoWithNoBG"
+        class="headerName"
+      />
       <div class="userName">
         <div class="avatar">
-          <img v-if="avatarImage" :src="avatarImage" alt="User Avatar" class="user-avatar" />
+          <img
+            v-if="avatarImage"
+            :src="avatarImage"
+            alt="User Avatar"
+            class="user-avatar"
+          />
         </div>
-        <h2 >{{ username }}</h2>
+        <h2>{{ username }}</h2>
       </div>
     </div>
     <h3>Choose correct pairs..!</h3>
     <div class="game-container">
       <div class="nav-panel">
         <div class="nav-container">
-          <a href="./home" class="navbtn">Home</a>
-          <a class="navbtn">Tutorial & Story</a>
-          <a class="navbtn">Leaderboard</a>
-          <a class="navbtn">Account</a>
+          <a href="/home" class="navbtn">Home</a>
+          <a href="/tutorial" class="navbtn">Tutorial & Story</a>
+          <a href="/leaderboard" class="navbtn">Leaderboard</a>
+          <a href="/account" class="navbtn">Account</a>
           <button class="logoutbtn" @click="logout">Logout</button>
         </div>
       </div>
       <section class="game-board">
-        <Card 
+        <Card
           v-for="(card, index) in cardList"
           :key="`card-${index}`"
           :matched="card.matched"
           :value="card.value"
           :visible="card.visible"
           :position="card.position"
-          @select-card="flipCard" />
+          @select-card="flipCard"
+        />
       </section>
       <div class="scoreboard-container">
         <div class="game-detail">
@@ -52,9 +66,11 @@
         </div>
         <div class="score-board">
           <div class="time">Time : {{ timer }}s</div>
-          <div class="life-count"> 🍌 Lives: {{ lives }}</div>
+          <div class="life-count">🍌 Lives: {{ lives }}</div>
           <h4>{{ status }}</h4>
-          <button @click="restartGame" class="navbtn" :disabled="!gameStarted">{{ buttonLabel }}</button>
+          <button @click="restartGame" class="navbtn" :disabled="!gameStarted">
+            {{ buttonLabel }}
+          </button>
         </div>
       </div>
     </div>
@@ -66,7 +82,9 @@
         <p>You have run out of time. Would you like to continue?</p>
         <div class="modal-buttons">
           <button class="modal-btn quit" @click="quitGame">Quit</button>
-          <button class="modal-btn get-more-lifes" @click="getMoreLifes">Get More 🍌 Lifes</button>
+          <button class="modal-btn get-more-lifes" @click="getMoreLifes">
+            Get More 🍌 Lifes
+          </button>
         </div>
       </div>
     </div>
@@ -77,31 +95,32 @@
         <p>You have run out of lives. Would you like to continue?</p>
         <div class="modal-buttons">
           <button class="modal-btn quit" @click="quitGame">Quit</button>
-          <button class="modal-btn get-more-lifes" @click="getMoreLifes">Get More 🍌 Lives</button>
+          <button class="modal-btn get-more-lifes" @click="getMoreLifes">
+            Get More 🍌 Lives
+          </button>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
-import _ from 'lodash';
-import { computed, ref, watch } from 'vue';
-import Card from '../components/Card.vue';
-import { useRouter } from 'vue-router';
+import _ from "lodash";
+import { computed, ref, watch } from "vue";
+import Card from "../components/Card.vue";
+import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     Card,
   },
   setup() {
     const cardList = ref([]);
     const userSelection = ref([]);
-    const username = ref(localStorage.getItem('username'));
-    const avatarImage = ref(localStorage.getItem('avatarImage'));
+    const username = ref(localStorage.getItem("username"));
+    const avatarImage = ref(localStorage.getItem("avatarImage"));
     const buttonLabel = ref("Start");
     const timer = ref(30);
     const showModal = ref(false);
@@ -109,40 +128,40 @@ export default {
     const showStartModal = ref(true);
     const gameStarted = ref(false);
     const score = ref(0);
-    const router = useRouter();  
-    const toast = useToast();   
-    const lives = ref(parseInt(localStorage.getItem('lives')) || 3); 
+    const router = useRouter();
+    const toast = useToast();
+    const lives = ref(parseInt(localStorage.getItem("lives")) || 5);
     const showLivesModal = ref(false); // Modal for when lives become zero
-
 
     // Game status
     const status = computed(() => {
       if (remainingPairs.value === 0) {
         clearInterval(timerInterval);
-        return 'Player Wins..!';
+        return "Player Wins..!";
       } else {
         return `Remaining Pairs: ${remainingPairs.value}`;
       }
     });
-    
+
     const logout = () => {
-  // Clear all local storage items
-  localStorage.clear();
+      // Clear all local storage items
+      localStorage.clear();
 
-  // Show toast notification for logout
-  toast.info("You have successfully logged out", {
-    timeout: 2000,
-    closeOnClick: true,
-  });
+      // Show toast notification for logout
+      toast.info("You have successfully logged out", {
+        timeout: 2000,
+        closeOnClick: true,
+      });
 
-  // Navigate to the login page
-  router.push('/login');
-};
+      // Navigate to the login page
+      router.push("/login");
+    };
 
- 
     // Count remaining pairs
     const remainingPairs = computed(() => {
-      const remainingCards = cardList.value.filter((card) => card.matched === false).length;
+      const remainingCards = cardList.value.filter(
+        (card) => card.matched === false
+      ).length;
       return remainingCards / 2;
     });
 
@@ -183,16 +202,16 @@ export default {
       }, 1000);
     };
 
-        // Start the game
-        const startGame = () => {
+    // Start the game
+    const startGame = () => {
       showStartModal.value = false;
       gameStarted.value = true;
       restartGame();
     };
 
-      // Quit the game
-      const quitGame = () => {
-            showModal.value = false;
+    // Quit the game
+    const quitGame = () => {
+      showModal.value = false;
 
       // Show toast notification
       toast.info("You have quit the game", {
@@ -201,27 +220,35 @@ export default {
       });
 
       // Navigate to the Home view
-      router.push('/home');
+      router.push("/home");
     };
 
     // Get more lifes
     const getMoreLifes = () => {
-  showModal.value = false; // Hide "Time Over" modal
-  showLivesModal.value = false; // Hide "Out of Lives" modal
-  timer.value = 30; // Reset timer to 30 seconds
-  startTimer(); // Restart timer
-  toast.info("Collect the Lives", {
-    timeout: 2000,
-    closeOnClick: true,
-  });
+      showModal.value = false; // Hide "Time Over" modal
+      showLivesModal.value = false; // Hide "Out of Lives" modal
+      timer.value = 30; // Reset timer to 30 seconds
+      startTimer(); // Restart timer
+      toast.info("Collect the Lives", {
+        timeout: 2000,
+        closeOnClick: true,
+      });
 
-  // Navigate to the Banana Game view to collect more lives
-  router.push('/bananagame');
-};
-
+      // Navigate to the Banana Game view to collect more lives
+      router.push("/bananagame");
+    };
 
     // Initialize cards
-    const cardItem = [1, 2, 3, 4, 5, 6, 7, 8];
+    const cardItem = [
+      "Bob",
+      "Carl",
+      "Dave",
+      "Jerry",
+      "Kevin",
+      "Phill",
+      "Stuart",
+      "Tom",
+    ];
     cardItem.forEach((item) => {
       cardList.value.push({
         value: item,
@@ -251,11 +278,10 @@ export default {
 
       if (userSelection.value[0]) {
         if (
-          userSelection.value[0].position === 
-          payload.position && 
+          userSelection.value[0].position === payload.position &&
           userSelection.value[0].faceValue === payload.faceValue
-         )   {
-          return
+        ) {
+          return;
         } else {
           userSelection.value[1] = payload;
         }
@@ -272,21 +298,21 @@ export default {
           const cardOne = currentValue[0];
           const cardTwo = currentValue[1];
           if (cardOne.faceValue === cardTwo.faceValue) {
-              cardList.value[cardOne.position].matched = true;
-              cardList.value[cardTwo.position].matched = true;
-              score.value += 1; // Increment score for correct pair
-            } else {
-              setTimeout(() => {
-                cardList.value[cardOne.position].visible = false;
-                cardList.value[cardTwo.position].visible = false;
-                lives.value--; // Decrement life count on mismatch
-                localStorage.setItem('lives', lives.value); // Update local storage with the new lives count
-                if (lives.value <= 0) {
-                  showLivesModal.value = true; // Show the "Out of Lives" modal
-                  clearInterval(timerInterval);
-                }
-  }, 1000);
-}
+            cardList.value[cardOne.position].matched = true;
+            cardList.value[cardTwo.position].matched = true;
+            score.value += 1; // Increment score for correct pair
+          } else {
+            setTimeout(() => {
+              cardList.value[cardOne.position].visible = false;
+              cardList.value[cardTwo.position].visible = false;
+              lives.value--; // Decrement life count on mismatch
+              localStorage.setItem("lives", lives.value); // Update local storage with the new lives count
+              if (lives.value <= 0) {
+                showLivesModal.value = true; // Show the "Out of Lives" modal
+                clearInterval(timerInterval);
+              }
+            }, 1000);
+          }
 
           userSelection.value.length = 0;
         }
@@ -314,22 +340,26 @@ export default {
       score,
       quitGame,
       lives,
-  showLivesModal,
-  logout,
+      showLivesModal,
+      logout,
     };
   },
 };
 </script>
 
 <style scoped>
+html body {
+  margin-top: 0;
+  padding: 0;
+}
 .game {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background: url('../assets/background dark.png') no-repeat center center fixed;
+  height: 110vh;
+  background: url("../assets/background dark.png") no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
-  color: #FFD700;
+  color: #ffd700;
 }
 
 .header {
@@ -337,7 +367,7 @@ export default {
   gap: 30px;
   align-items: center;
   justify-content: center;
-  height: 30%;
+  height: 20%;
 }
 
 .header .headerLogo {
@@ -369,73 +399,74 @@ export default {
   border-radius: 50%;
 }
 
-.time{
-  color: #FFD700;
+.time {
+  color: #ffd700;
   margin: 0;
   height: fit-content;
   text-align: center;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);  transform: scale(1.1);
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  transform: scale(1.1);
   font-weight: bolder;
 }
 h3 {
-  color: #FFD700;
+  color: #ffd700;
   margin: 0;
   height: fit-content;
   position: absolute;
-  top: 20%;
+  top: 15%;
   left: 45%;
   text-align: center;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
-h2{
+h2 {
   color: #ffffff;
   margin: 0;
   height: fit-content;
   text-align: center;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
-h4{
-  color: #FFD700;
+h4 {
+  color: #ffd700;
   margin: 0;
   height: fit-content;
   top: 20%;
   left: 45%;
   text-align: center;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
-.life-count{
-  color: #FFD700;
+.life-count {
+  color: #ffd700;
   margin-top: 10px;
   margin-bottom: 10px;
   height: fit-content;
   top: 20%;
   left: 45%;
   text-align: center;
-    padding: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
 .game-container {
   display: flex;
   align-items: center;
   justify-content: space-around;
 }
-.nav-panel a{
-    text-decoration: none;
-  }
+.nav-panel a {
+  text-decoration: none;
+}
 .nav-panel {
   display: flex;
   flex-direction: column;
@@ -450,13 +481,13 @@ h4{
 .nav-container {
   display: flex;
   flex-direction: column;
-  background-color: #E8B931;
+  background-color: #e8b931;
   border-radius: 20px;
   padding: 10px;
 }
 
 .navbtn {
-  background-color: #FBF4A9;
+  background-color: #fbf4a9;
   color: black;
   padding: 10px;
   margin-top: 5px;
@@ -468,9 +499,9 @@ h4{
 
 .navbtn:hover {
   background-color: #ffffff;
-  color: #FFD700;
+  color: #ffd700;
   transform: scale(1.1);
-  border: 3px solid #FFD700;
+  border: 3px solid #ffd700;
 }
 
 .logoutbtn {
@@ -481,26 +512,28 @@ h4{
   font-weight: bolder;
   border: 3px solid red;
   align-content: center;
+  cursor: pointer;
 }
 
 .logoutbtn:hover {
   background-color: crimson;
-  color: #FFD700;
+  color: #ffd700;
   transform: scale(1.1);
   border: 3px solid white;
 }
 
 .game-board {
   display: grid;
-  grid-template-columns: 100px 100px 100px 100px;
-  grid-column-gap: 30px;
-  grid-template-rows: 100px 100px 100px 100px;
-  grid-row-gap: 30px;
+  grid-template-columns: 80px 80px 80px 80px;
+  grid-column-gap: 15px;
+  grid-template-rows: 130px 130px 130px 130px;
+  grid-row-gap: 15px;
   justify-content: center;
 }
 
 .card {
-  border: 5px solid #ccc;
+  /* border: 5px solid #ccc; */
+  border: none;
 }
 
 .scoreboard-container {
@@ -528,7 +561,7 @@ h4{
   background: rgba(255, 255, 255, 0.2);
 }
 
-  .modal-overlay {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -542,15 +575,13 @@ h4{
 }
 
 .modal {
-  
-  
   border-radius: 10px;
   width: 400px;
   text-align: center;
 
-    height: fit-content;
+  height: fit-content;
 
-    border: 1px solid#E8B931;
+  border: 1px solid#E8B931;
   padding: 10px;
   border-radius: 15px;
   backdrop-filter: blur(10px);
@@ -588,7 +619,6 @@ h4{
 }
 
 .modal-btn.get-more-lifes {
-  
   background: #494848c4;
   color: #fff;
   border: 1px solid#E8B931;
