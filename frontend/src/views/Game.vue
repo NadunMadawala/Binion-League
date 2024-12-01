@@ -25,15 +25,15 @@
         class="headerName"
       />
       <div class="userName">
-        <div class="avatar">
+        <div class="user-avatar-container">
           <img
-            v-if="avatarImage"
-            :src="avatarImage"
+            v-if="avatar"
+            :src="getAvatarImage(avatar)"
             alt="User Avatar"
             class="user-avatar"
           />
         </div>
-        <h2>{{ username }}</h2>
+        {{ username }}
       </div>
     </div>
     <h3>Choose correct pairs..!</h3>
@@ -82,7 +82,7 @@
         <p>You have run out of time. Would you like to continue?</p>
         <div class="modal-buttons">
           <button class="modal-btn quit" @click="quitGame">Quit</button>
-          <button class="modal-btn get-more-lifes" @click="getMoreLifes">
+          <button class="modal-btn get-more-lifes" @click="getMoreLives">
             Get More 🍌 Lifes
           </button>
         </div>
@@ -95,7 +95,7 @@
         <p>You have run out of lives. Would you like to continue?</p>
         <div class="modal-buttons">
           <button class="modal-btn quit" @click="quitGame">Quit</button>
-          <button class="modal-btn get-more-lifes" @click="getMoreLifes">
+          <button class="modal-btn get-more-lifes" @click="getMoreLives">
             Get More 🍌 Lives
           </button>
         </div>
@@ -106,10 +106,12 @@
 
 <script>
 import _ from "lodash";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import Card from "../components/Card.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
+import axios from "axios";
+import { useStore } from "vuex";
 
 export default {
   name: "App",
@@ -120,9 +122,10 @@ export default {
     const cardList = ref([]);
     const userSelection = ref([]);
     const username = ref(localStorage.getItem("username"));
+    const userId = localStorage.getItem("userId");
     const avatarImage = ref(localStorage.getItem("avatarImage"));
     const buttonLabel = ref("Start");
-    const timer = ref(30);
+    const timer = ref(1000);
     const showModal = ref(false);
     let timerInterval = null;
     const showStartModal = ref(true);
@@ -130,30 +133,78 @@ export default {
     const score = ref(0);
     const router = useRouter();
     const toast = useToast();
-    const lives = ref(parseInt(localStorage.getItem("lives")) || 5);
-    const showLivesModal = ref(false); // Modal for when lives become zero
+    const lives = ref(parseInt(localStorage.getItem("lives")) || 100);
+    const showLivesModal = ref(false);
+
+    const incrementWinCount = async () => {
+      try {
+        // const store = useStore();
+        // const userId = store.state.user?.id; // Use the store directly
+        const winCount = localStorage.getItem("winCount");
+        console.log(userId, "userId");
+        if (!userId) {
+          throw new Error("User ID not found");
+        }
+        const response = await axios.post(
+          "http://localhost:5000/api/users/increment-win",
+          {
+            userId,
+            winCount: parseInt(localStorage.getItem("winCount") || 10), //wincount + 1
+          }
+        );
+        //const response = await axios.patch(`/increment-win/${userId}`);
+        if (response.status === 200) {
+          toast.success("Win count has been updated!", {
+            timeout: 2000,
+            closeOnClick: true,
+          });
+        } else {
+          toast.warning("Could not update win count. Please try again.", {
+            timeout: 2000,
+            closeOnClick: true,
+          });
+        }
+      } catch (error) {
+        console.error(error); // Log the error for debugging
+        toast.error("An error occurred while updating win count.", {
+          timeout: 2000,
+          closeOnClick: true,
+        });
+      }
+    };
 
     // Game status
     const status = computed(() => {
       if (remainingPairs.value === 0) {
+        const winCount = localStorage.getItem("winCount");
+        localStorage.setItem("winCount", parseInt(winCount) + 1);
         clearInterval(timerInterval);
+        incrementWinCount();
         return "Player Wins..!";
       } else {
         return `Remaining Pairs: ${remainingPairs.value}`;
       }
     });
 
-    const logout = () => {
-      // Clear all local storage items
-      localStorage.clear();
+    // Check life count on component load
+    onMounted(() => {
+      if (lives.value <= 0) {
+        showLivesModal.value = true;
+        toast.info("No more lives. You need to get more lives to continue.", {
+          timeout: 2000,
+          closeOnClick: true,
+        });
+      } else {
+        loadGameState(); // Load saved game state if available
+      }
+    });
 
-      // Show toast notification for logout
+    const logout = () => {
+      localStorage.clear();
       toast.info("You have successfully logged out", {
         timeout: 2000,
         closeOnClick: true,
       });
-
-      // Navigate to the login page
       router.push("/login");
     };
 
@@ -171,70 +222,121 @@ export default {
     };
 
     const restartGame = () => {
+      if (lives.value <= 0) {
+        showLivesModal.value = true;
+        toast.info(
+          "No lives left. Redirecting to Banana Game to collect more.",
+          {
+            timeout: 2000,
+            closeOnClick: true,
+          }
+        );
+        return;
+      }
       buttonLabel.value = "Restart Game";
       shuffleCards();
-
-      cardList.value = cardList.value.map((card, index) => {
-        return {
-          ...card,
-          matched: false,
-          position: index,
-          visible: false,
-        };
-      });
-
-      startTimer(); // Start the countdown timer when game starts
-      score.value = 0; // Reset score
+      cardList.value = cardList.value.map((card, index) => ({
+        ...card,
+        matched: false,
+        position: index,
+        visible: false,
+      }));
+      startTimer();
+      score.value = 0;
+      gameStarted.value = true; // Mark game as started
     };
 
     // Timer function
-    const startTimer = () => {
-      clearInterval(timerInterval); // Clear previous timer if any
-      timer.value = 30; // Reset timer to 30 seconds
+    const startTimer = (initialTime = 1000) => {
+      clearInterval(timerInterval);
+      timer.value = initialTime;
 
       timerInterval = setInterval(() => {
         if (timer.value > 0) {
           timer.value--;
         } else {
           clearInterval(timerInterval);
-          showModal.value = true; // Show the modal when time is over
+          showModal.value = true;
         }
       }, 1000);
     };
 
     // Start the game
     const startGame = () => {
+      if (lives.value <= 0) {
+        showLivesModal.value = true;
+        toast.info(
+          "You need lives to start the game. Redirecting to Banana Game.",
+          {
+            timeout: 2000,
+            closeOnClick: true,
+          }
+        );
+        return;
+      }
       showStartModal.value = false;
       gameStarted.value = true;
       restartGame();
     };
 
-    // Quit the game
+    // Quit the game and clear state
     const quitGame = () => {
-      showModal.value = false;
-
-      // Show toast notification
+      clearInterval(timerInterval);
+      clearGameState(); // Clear game state before redirecting
       toast.info("You have quit the game", {
         timeout: 2000,
         closeOnClick: true,
       });
-
-      // Navigate to the Home view
       router.push("/home");
     };
 
-    // Get more lifes
-    const getMoreLifes = () => {
-      showModal.value = false; // Hide "Time Over" modal
-      showLivesModal.value = false; // Hide "Out of Lives" modal
-      timer.value = 30; // Reset timer to 30 seconds
-      startTimer(); // Restart timer
+    // Clear game state from localStorage
+    const clearGameState = () => {
+      localStorage.removeItem("cardList");
+      localStorage.removeItem("timer");
+      localStorage.removeItem("score");
+      localStorage.removeItem("gameStarted");
+      localStorage.removeItem("showStartModal");
+    };
+
+    // Save game state to localStorage
+    const saveGameState = () => {
+      localStorage.setItem("cardList", JSON.stringify(cardList.value));
+      localStorage.setItem("timer", timer.value);
+      localStorage.setItem("score", score.value);
+      localStorage.setItem("gameStarted", gameStarted.value);
+      localStorage.setItem("showStartModal", showStartModal.value);
+    };
+
+    // Load game state from localStorage
+    const loadGameState = () => {
+      const savedCardList = JSON.parse(localStorage.getItem("cardList"));
+      if (savedCardList && localStorage.getItem("gameStarted") === "true") {
+        cardList.value = savedCardList;
+        timer.value = parseInt(localStorage.getItem("timer")) || 60;
+        score.value = parseInt(localStorage.getItem("score")) || 0;
+        gameStarted.value = localStorage.getItem("gameStarted") === "true";
+        showStartModal.value =
+          localStorage.getItem("showStartModal") === "true" ? true : false;
+
+        // Resume the timer if the game is already started
+        if (gameStarted.value) {
+          startTimer(timer.value);
+        }
+      } else {
+        showStartModal.value = true; // Show start modal if no game is in progress
+      }
+    };
+
+    // Get more lives
+    const getMoreLives = () => {
+      saveGameState();
+      showModal.value = false;
+      showLivesModal.value = false;
       toast.info("Collect the Lives", {
         timeout: 2000,
         closeOnClick: true,
       });
-
-      // Navigate to the Banana Game view to collect more lives
       router.push("/bananagame");
     };
 
@@ -264,16 +366,14 @@ export default {
       });
     });
 
-    cardList.value = cardList.value.map((card, index) => {
-      return {
-        ...card,
-        position: index,
-      };
-    });
+    cardList.value = cardList.value.map((card, index) => ({
+      ...card,
+      position: index,
+    }));
 
     // Card flipping logic
     const flipCard = (payload) => {
-      if (!gameStarted.value) return; // Prevent flipping cards if the game hasn't started
+      if (!gameStarted.value) return;
       cardList.value[payload.position].visible = true;
 
       if (userSelection.value[0]) {
@@ -300,20 +400,19 @@ export default {
           if (cardOne.faceValue === cardTwo.faceValue) {
             cardList.value[cardOne.position].matched = true;
             cardList.value[cardTwo.position].matched = true;
-            score.value += 1; // Increment score for correct pair
+            score.value += 1;
           } else {
             setTimeout(() => {
               cardList.value[cardOne.position].visible = false;
               cardList.value[cardTwo.position].visible = false;
-              lives.value--; // Decrement life count on mismatch
-              localStorage.setItem("lives", lives.value); // Update local storage with the new lives count
+              lives.value--;
+              localStorage.setItem("lives", lives.value);
               if (lives.value <= 0) {
-                showLivesModal.value = true; // Show the "Out of Lives" modal
+                showLivesModal.value = true;
                 clearInterval(timerInterval);
               }
             }, 1000);
           }
-
           userSelection.value.length = 0;
         }
       },
@@ -333,12 +432,11 @@ export default {
       timer,
       showModal,
       quitGame,
-      getMoreLifes,
+      getMoreLives,
       showStartModal,
       startGame,
       gameStarted,
       score,
-      quitGame,
       lives,
       showLivesModal,
       logout,
@@ -355,7 +453,7 @@ html body {
 .game {
   display: flex;
   flex-direction: column;
-  height: 110vh;
+  height: 100vh;
   background: url("../assets/background dark.png") no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
@@ -463,6 +561,7 @@ h4 {
   display: flex;
   align-items: center;
   justify-content: space-around;
+  margin-top: 20px;
 }
 .nav-panel a {
   text-decoration: none;
@@ -524,9 +623,9 @@ h4 {
 
 .game-board {
   display: grid;
-  grid-template-columns: 80px 80px 80px 80px;
+  grid-template-columns: 70px 70px 70px 70px;
   grid-column-gap: 15px;
-  grid-template-rows: 130px 130px 130px 130px;
+  grid-template-rows: 120px 120px 120px 120px;
   grid-row-gap: 15px;
   justify-content: center;
 }

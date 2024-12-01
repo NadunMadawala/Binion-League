@@ -106,6 +106,10 @@ router.post(
         msg: "User login successfully",
         userId: user._id,
         username: user.name,
+        avatar: user.avatar,
+        winCount: user.winCount,
+        lifeCount: user.lifeCount,
+        score: user.score,
       });
     } catch (err) {
       console.error(err.message);

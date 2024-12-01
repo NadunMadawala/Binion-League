@@ -8,6 +8,7 @@ import PhillImage from "../assets/AvatarImages/Phill.png";
 import StuartImage from "../assets/AvatarImages/Stuart.png";
 import TomImage from "../assets/AvatarImages/Tom.png";
 import CarlImage from "../assets/AvatarImages/Carl.png";
+import { computed } from "vue";
 
 export default {
     data() {
@@ -49,7 +50,14 @@ export default {
       default: false,
     },
   },
-  setup(props, context) {
+  setup(props,context) {
+    const flippedStyles = computed(()=>{
+      if (props.visible){
+        return 'is-flipped'
+      }
+    })
+
+
     const selectCard = () => {
       context.emit("select-card", {
         position: props.position,
@@ -58,13 +66,14 @@ export default {
     };
     return {
       selectCard,
+      flippedStyles,
     };
   },
 };
 </script>
 
 <template>
-  <div class="card" @click="selectCard">
+  <div class="card" :class="flippedStyles" @click="selectCard">
     <div v-if="visible" class="card-face is-front">
       <!-- {{ value }} -->
        <img :src="getImagePath(value)" :alt="value" class="avatar-image"/>
@@ -80,6 +89,10 @@ export default {
 <style>
 .card {
   position: relative;
+  transition:1.5s transform ease-in ;
+}
+.card .is-flipped{
+  transform: rotateY(180deg);
 }
 
 .card-face {

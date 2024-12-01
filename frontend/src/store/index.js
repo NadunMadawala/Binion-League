@@ -8,6 +8,7 @@ const store = createStore({
     isAuthenticated: !!localStorage.getItem("token"),
     score: 0,
     lifeCount: 3,
+    winCount: 0,
     hasSelectedAvatar: false, // Add to track if the user has selected an avatar
   },
   mutations: {
@@ -111,6 +112,9 @@ const store = createStore({
     },
     lifeCount(state) {
       return state.lifeCount;
+    },
+    winCount(state) {
+      return state.winCount;
     },
     hasSelectedAvatar(state) {
       return state.hasSelectedAvatar;
