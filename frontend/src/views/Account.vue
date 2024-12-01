@@ -1,13 +1,26 @@
 <template>
   <div class="account">
     <div class="header">
-      <img src="../assets/Corrected logo without bg.png" alt="logoWithNoBG" class="headerLogo">
-      <img src="../assets/Logo_name_correct-removebg-preview.png" alt="logoWithNoBG" class="headerName">
+      <img
+        src="../assets/Corrected logo without bg.png"
+        alt="logoWithNoBG"
+        class="headerLogo"
+      />
+      <img
+        src="../assets/Logo_name_correct-removebg-preview.png"
+        alt="logoWithNoBG"
+        class="headerName"
+      />
       <div class="userName">
-        <div class="avatar-logo">
-          <img v-if="avatarImage" :src="avatarImage" alt="User Avatar" class="user-avatar" />
+        <div class="user-avatar-container">
+          <img
+            v-if="avatar"
+            :src="getAvatarImage(avatar)"
+            alt="User Avatar"
+            class="user-avatar"
+          />
         </div>
-        <h3>{{ user?.name }}</h3>
+        {{ username }}
       </div>
     </div>
     <h2>My Account</h2>
@@ -26,14 +39,20 @@
           <div class="avatar-section">
             <h3>Current Avatar</h3>
             <div class="avatar-display">
-              <img v-if="avatarImage" :src="avatarImage" alt="User Avatar" class="user-avatar-large" />
+              <img
+                v-if="avatar"
+                :src="getAvatarImage(avatar)"
+                alt="User Avatar"
+                class="user-avatar"
+              />
             </div>
           </div>
           <div class="user-info">
             <h3>User Info</h3>
-            <p>Name: {{ user?.name }}</p>
-            <p>Score: {{ user?.score }}</p>
-            <p>Life Count: {{ user?.lifeCount }}</p>
+            <p>Name: {{ username }}</p>
+            <p>Score: {{ score }}</p>
+            <p>Life Count: {{ lifeCount }}</p>
+            <p>Win Count: {{ winCount }}</p>
           </div>
         </div>
       </div>
@@ -42,15 +61,15 @@
 </template>
 
 <script>
-import axios from 'axios';
-import BobImage from '../assets/AvatarImages/Bob.png';
-import DaveImage from '../assets/AvatarImages/Dave.png';
-import JerryImage from '../assets/AvatarImages/Jerry.png';
-import KevinImage from '../assets/AvatarImages/Kevin.png';
-import PhillImage from '../assets/AvatarImages/Phill.png';
-import StuartImage from '../assets/AvatarImages/Stuart.png';
-import TomImage from '../assets/AvatarImages/Tom.png';
-import CarlImage from '../assets/AvatarImages/Carl.png';
+import axios from "axios";
+import BobImage from "../assets/AvatarImages/Bob.png";
+import DaveImage from "../assets/AvatarImages/Dave.png";
+import JerryImage from "../assets/AvatarImages/Jerry.png";
+import KevinImage from "../assets/AvatarImages/Kevin.png";
+import PhillImage from "../assets/AvatarImages/Phill.png";
+import StuartImage from "../assets/AvatarImages/Stuart.png";
+import TomImage from "../assets/AvatarImages/Tom.png";
+import CarlImage from "../assets/AvatarImages/Carl.png";
 
 export default {
   data() {
@@ -64,7 +83,12 @@ export default {
         Phill: PhillImage,
         Stuart: StuartImage,
         Tom: TomImage,
-      }
+      },
+      username: localStorage.getItem("username"),
+      score: localStorage.getItem("score"),
+      lifeCount: localStorage.getItem("lifeCount"),
+      winCount: localStorage.getItem("winCount"),
+      avatar: localStorage.getItem("avatar"),
     };
   },
   computed: {
@@ -73,24 +97,61 @@ export default {
       return this.$store.state.user;
     },
     avatarImage() {
-      return this.user && this.user.avatar ? this.avatars[this.user.avatar] : null;
-    }
+      return this.user && this.user.avatar
+        ? this.avatars[this.user.avatar]
+        : null;
+    },
   },
   methods: {
     async fetchUserData() {
       try {
         const apiUrl = import.meta.env.VITE_APP_API_URL;
-        const response = await axios.get(`${apiUrl}/api/users/${this.$store.state.user.id}`);
+        const response = await axios.get(
+          `${apiUrl}/api/users/${this.$store.state.user.id}`
+        );
         // Assuming response contains the user's data
-        this.$store.commit('setUser', response.data);
+        this.$store.commit("setUser", response.data);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
     },
     logout() {
-      this.$store.dispatch('logout');
-      this.$router.push('/login');
-    }
+      this.$store.dispatch("logout");
+      this.$router.push("/login");
+    },
+    getAvatarImage(avatarName) {
+      return this.avatars[avatarName] || null;
+    },
+    async selectAvatar(avatar) {
+      this.selectedAvatar = avatar;
+
+      try {
+        // Get user id from Vuex store
+        const userId = this.$store.state.user?.id;
+
+        // Update avatar in the backend
+        const response = await axios.post(
+          "http://localhost:5000/api/users/update-avatar",
+          {
+            userId,
+            avatar: avatar.name,
+          }
+        );
+        localStorage.setItem("avatar", avatar.name);
+
+        console.log("Avatar updated successfully:", response.data);
+
+        // Update Vuex store to indicate avatar has been selected
+        this.$store.commit("setUserAvatar", avatar.name);
+        this.$store.commit("setUserHasSelectedAvatar", true);
+
+        // Redirect to home page
+        this.$router.push("/home");
+      } catch (error) {
+        console.error("Error updating avatar:", error);
+        alert("Failed to update avatar. Please try again.");
+      }
+    },
   },
   created() {
     this.fetchUserData(); // Fetch user data when the component is created
@@ -104,10 +165,10 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: url('../assets/background dark.png') no-repeat center center fixed;
+  background: url("../assets/background dark.png") no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
-  color: #FFD700;
+  color: #ffd700;
 }
 
 .header {
@@ -146,11 +207,18 @@ export default {
   border-radius: 50%;
   object-fit: cover;
 }
+.content-container .user-avatar {
+  height: 250px;
+  width: 250px;
+  background: white;
+  border-radius: 50%;
+  object-fit: scale-down;
+}
 
 .content-container {
   display: flex;
   justify-content: space-between;
-  gap: 30px;
+  gap: 100px;
 }
 
 a {
@@ -169,18 +237,19 @@ a {
   width: 12%;
   margin-left: 5%;
   margin-top: 20px;
+  position: fixed;
 }
 
 .nav-container {
   display: flex;
   flex-direction: column;
-  background-color: #E8B931;
+  background-color: #e8b931;
   border-radius: 20px;
   padding: 10px;
 }
 
 .navbtn {
-  background-color: #FBF4A9;
+  background-color: #fbf4a9;
   color: black;
   padding: 10px;
   margin-top: 5px;
@@ -192,9 +261,9 @@ a {
 
 .navbtn:hover {
   background-color: #ffffff;
-  color: #FFD700;
+  color: #ffd700;
   transform: scale(1.1);
-  border: 3px solid #FFD700;
+  border: 3px solid #ffd700;
 }
 
 .logoutbtn {
@@ -210,17 +279,18 @@ a {
 
 .logoutbtn:hover {
   background-color: crimson;
-  color: #FFD700;
+  color: #ffd700;
   transform: scale(1.1);
   border: 3px solid white;
 }
 
 .board-container {
+  margin-left: 30%;
   margin-bottom: 20px;
   border: 3px solid #ccc;
   padding: 20px;
-  padding-left: 50px;
-  padding-right: 50px;
+  padding-left: 10px;
+  padding-right: 10px;
   border-radius: 15px;
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.2);
@@ -228,15 +298,17 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 20px;
-  width: 40%;
-  height: fit-content;
-  margin-right: 20%;
+  width: 50%;
+  height: auto;
+  margin-right: 10%;
   margin-top: 20px;
+  position: absolute;
 }
 
 h2 {
-  color: #FFD700;
+  color: #ffd700;
   margin: 0;
   height: fit-content;
   position: absolute;
@@ -258,5 +330,11 @@ h3 {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 10px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
+.user-info p {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 10px;
+  border: #e8b931 solid 1px;
+  border-radius: 25px;
 }
 </style>

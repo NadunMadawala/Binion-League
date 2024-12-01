@@ -48,6 +48,10 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 3,
   },
+  winCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const User = mongoose.model("User", UserSchema);

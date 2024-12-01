@@ -2,11 +2,24 @@
   <div class="banana-game-screen">
     <!-- Header Section -->
     <div class="header">
-      <img src="../assets/Corrected logo without bg.png" alt="logoWithNoBG" class="headerLogo" />
-      <img src="../assets/Logo_name_correct-removebg-preview.png" alt="logoWithNoBG" class="headerName" />
+      <img
+        src="../assets/Corrected logo without bg.png"
+        alt="logoWithNoBG"
+        class="headerLogo"
+      />
+      <img
+        src="../assets/Logo_name_correct-removebg-preview.png"
+        alt="logoWithNoBG"
+        class="headerName"
+      />
       <div class="userName">
         <div class="avatar-logo">
-          <img v-if="avatarImage" :src="avatarImage" alt="User Avatar" class="user-avatar" />
+          <img
+            v-if="avatarImage"
+            :src="avatarImage"
+            alt="User Avatar"
+            class="user-avatar"
+          />
         </div>
         <h3>{{ username }}</h3>
       </div>
@@ -16,21 +29,30 @@
       <div class="game-content">
         <h3>Welcome to the Banana Life Boost Screen!</h3>
         <p>Need more lives to continue your journey?</p>
-        <button @click="fetchPuzzle" class="banana-btn">Get More Lives 🍌</button>
+        <button @click="fetchPuzzle" class="banana-btn">
+          Get More Lives 🍌
+        </button>
         <div v-if="loading" class="loading">Fetching puzzle...</div>
         <div v-if="puzzleImage" class="puzzle-section">
           <img :src="puzzleImage" alt="Banana Puzzle" class="puzzle-image" />
           <div class="answer-section">
-            <input v-model="userAnswer" type="text" placeholder="Enter your answer here" />
-            <button @click="checkAnswer" class="submit-btn">Submit Answer</button>
+            <input v-model="userAnswer" type="text" placeholder="" />
+            <button @click="checkAnswer" class="submit-btn">
+              Submit Answer
+            </button>
           </div>
         </div>
-        <div v-if="resultMessage" class="result-message">{{ resultMessage }}</div>
+        <div v-if="resultMessage" class="result-message">
+          {{ resultMessage }}
+        </div>
       </div>
       <div class="score-board">
         <div class="time">Time: {{ timer }}s</div>
         <div class="life-count">🍌 Lives Collected: {{ lives }}</div>
         <button @click="quitGame" class="modal-btn quit">Quit</button>
+        <button @click="continueGame" class="modal-btn get-more-lifes">
+          Continue
+        </button>
       </div>
     </div>
 
@@ -41,31 +63,33 @@
         <p>You can either quit or try to get more lives!</p>
         <div class="modal-buttons"></div>
         <button @click="quitGame" class="modal-btn quit">Quit</button>
-        <button @click="continueGame" class="modal-btn get-more-lifes">Continue</button>
+        <button @click="continueGame" class="modal-btn get-more-lifes">
+          Continue
+        </button>
       </div>
-      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useToast } from 'vue-toastification';
+import axios from "axios";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 
 export default {
-  name: 'BananaGameScreen',
+  name: "BananaGameScreen",
   setup() {
-    const username = ref(localStorage.getItem('username'));
-    const avatarImage = ref(localStorage.getItem('avatarImage'));
+    const username = ref(localStorage.getItem("username"));
+    const avatarImage = ref(localStorage.getItem("avatarImage"));
     const loading = ref(false);
     const puzzleImage = ref(null);
     const correctAnswer = ref(null);
-    const userAnswer = ref('');
-    const resultMessage = ref('');
+    const userAnswer = ref("");
+    const resultMessage = ref("");
     const showModal = ref(false);
-    const timer = ref(15);
-    const lives = ref(parseInt(localStorage.getItem('lives')) || 0);
+    const timer = ref(30);
+    const lives = ref(parseInt(localStorage.getItem("lives")) || 0);
     let timerInterval = null;
 
     const router = useRouter();
@@ -78,17 +102,20 @@ export default {
       puzzleImage.value = null;
 
       try {
-        const response = await axios.get('https://marcconrad.com/uob/banana/api.php');
+        const response = await axios.get(
+          "https://marcconrad.com/uob/banana/api.php"
+        );
         if (response.data) {
           puzzleImage.value = response.data.question;
           correctAnswer.value = response.data.solution;
-          console.log(response.data.solution, 'value');
+          console.log(response.data.solution, "value");
           startTimer(); // Start the countdown timer when the puzzle is fetched
         } else {
           resultMessage.value = "Failed to load puzzle. Please try again.";
         }
       } catch (error) {
-        resultMessage.value = "Error contacting Banana API. Please try again later.";
+        resultMessage.value =
+          "Error contacting Banana API. Please try again later.";
       } finally {
         loading.value = false;
       }
@@ -97,22 +124,22 @@ export default {
     // Timer function
     const startTimer = () => {
       clearInterval(timerInterval); // Clear previous timer if any
-      timer.value = 15; // Reset timer to 30 seconds
+      timer.value = 30; // Reset timer to 30 seconds
 
       timerInterval = setInterval(() => {
         if (timer.value > 0) {
           timer.value--;
         } else {
           clearInterval(timerInterval);
-          showModal.value = true; 
+          showModal.value = true;
         }
       }, 1000);
     };
 
     // Method to check the user's answer
     const checkAnswer = () => {
-      console.log(Number(userAnswer.value), 'user input');
-      console.log(correctAnswer.value, 'answer');
+      console.log(Number(userAnswer.value), "user input");
+      console.log(correctAnswer.value, "answer");
 
       if (Number(userAnswer.value) === correctAnswer.value) {
         resultMessage.value = "Correct! You've earned a banana life 🍌";
@@ -126,7 +153,7 @@ export default {
     // Method to increase user's life count
     const increaseLives = () => {
       lives.value++;
-      localStorage.setItem('lives', lives.value);
+      localStorage.setItem("lives", lives.value);
       toast.success("You've earned a banana life! 🍌", {
         timeout: 2000,
         closeOnClick: true,
@@ -137,14 +164,22 @@ export default {
     const quitGame = () => {
       // Clear timer interval
       clearInterval(timerInterval);
+
       // Navigate to home page
-      router.push('/home');
+      router.push("/home");
     };
 
     // Method to continue the game
     const continueGame = () => {
-      showModal.value = false;
-      router.push('/game');
+      if (lives.value > 0) {
+        showModal.value = false;
+        router.push("/game");
+      } else {
+        toast.info("You need to earn more lives before continuing the game.", {
+          timeout: 3000,
+          closeOnClick: true,
+        });
+      }
     };
 
     return {
@@ -171,14 +206,23 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100vh;
-  background: url('../assets/background dark.png') no-repeat center center fixed;
+  height: 110vh;
+  background: url("../assets/background dark.png") no-repeat center center fixed;
   background-size: cover;
   overflow: hidden;
-  color: #FFD700;
+  color: #ffd700;
+}
+input {
+  height: 40px;
+  width: 60px;
+  margin-right: 5px;
+  color: #e6b800;
+  font-size: xx-large;
+  padding: 10px;
+  border-radius: 20px;
+  justify-items: center;
 }
 
-/* Header Styles */
 .header {
   display: flex;
   gap: 30px;
@@ -233,7 +277,7 @@ export default {
 }
 
 .time {
-  color: #FFD700;
+  color: #ffd700;
   text-align: center;
   padding: 10px;
   background: rgba(0, 0, 0, 0.6);
@@ -244,7 +288,7 @@ export default {
 }
 
 .life-count {
-  color: #FFD700;
+  color: #ffd700;
   margin-top: 10px;
   margin-bottom: 10px;
   text-align: center;
@@ -265,9 +309,9 @@ export default {
 
 .banana-btn {
   margin-top: 10px;
-  padding: 15px 20px;
+  /* padding: 15px 20px; */
   font-size: 1.2em;
-  background: #FFD700;
+  background: #ffd700;
   color: #ffffff;
   border: none;
   border-radius: 5px;
@@ -281,9 +325,9 @@ export default {
 
 .puzzle-image {
   margin-top: 20px;
-  width: 300px;
+  width: 500px;
   height: auto;
-  border: 2px solid #FFD700;
+  border: 2px solid #ffd700;
   border-radius: 10px;
 }
 
@@ -295,7 +339,7 @@ export default {
   margin-top: 10px;
   padding: 10px 10px;
   font-size: 1em;
-  background: #FFD700;
+  background: #ffd700;
   color: #ffffff;
   border: none;
   border-radius: 5px;
@@ -311,7 +355,7 @@ export default {
 .result-message {
   margin-top: 20px;
   font-size: 1.1em;
-  color: #FFD700;
+  color: #ffd700;
 }
 
 .modal-overlay {
@@ -366,7 +410,7 @@ export default {
 .modal-btn:hover {
   background-color: #e6b800;
   color: #fff;
-  transform: scale(1.1)
+  transform: scale(1.1);
 }
 
 .modal-btn.quit {
@@ -377,6 +421,6 @@ export default {
   background: crimson;
   color: #fff;
   border: 2px solid #fff;
-  transform: scale(1.1)
+  transform: scale(1.1);
 }
 </style>

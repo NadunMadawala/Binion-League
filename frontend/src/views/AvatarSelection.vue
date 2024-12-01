@@ -97,6 +97,7 @@ export default {
             avatar: avatar.name,
           }
         );
+        localStorage.setItem("avatar", avatar.name);
 
         console.log("Avatar updated successfully:", response.data);
 
