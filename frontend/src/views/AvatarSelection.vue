@@ -12,15 +12,15 @@
         class="headerName"
       />
       <div class="userName">
-        <div class="avatar-logo">
+        <div class="user-avatar-container">
           <img
-            v-if="avatarImage"
-            :src="avatarImage"
+            v-if="avatar"
+            :src="getAvatarImage(avatar)"
             alt="User Avatar"
             class="user-avatar"
           />
         </div>
-        <h3>{{ userName }}</h3>
+        {{ username }}
       </div>
     </div>
 
@@ -66,6 +66,8 @@ export default {
         { id: 8, name: "Tom", image: TomImage },
       ],
       selectedAvatar: null,
+      username: localStorage.getItem("username"),
+      avatar: localStorage.getItem("avatar"),
     };
   },
   computed: {

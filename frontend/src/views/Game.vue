@@ -101,22 +101,38 @@
         </div>
       </div>
     </div>
+    <!-- Modal for Player Win -->
+    <div v-if="showWinModal" class="modal-overlay">
+      <div class="modal">
+        <h2>Congratulations! 🎉</h2>
+        <p>You have won the game and earned 1 win.</p>
+        <ConfettiExplosion v-if="showConfetti" />
+        <div class="modal-buttons">
+          <button class="modal-btn quit" @click="goToHome">Go to Home</button>
+          <button class="modal-btn get-more-lifes" @click="goToLeaderboard">
+            Go to Leaderboard
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import _ from "lodash";
-import { computed, ref, watch, onMounted } from "vue";
+import { computed, ref, watch, onMounted, nextTick } from "vue";
 import Card from "../components/Card.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import axios from "axios";
 import { useStore } from "vuex";
+import ConfettiExplosion from "vue-confetti-explosion";
 
 export default {
   name: "App",
   components: {
     Card,
+    ConfettiExplosion,
   },
   setup() {
     const cardList = ref([]);
@@ -135,26 +151,29 @@ export default {
     const toast = useToast();
     const lives = ref(parseInt(localStorage.getItem("lives")) || 100);
     const showLivesModal = ref(false);
+    const showConfetti = ref(false);
+    const showWinModal = ref(false);
 
     const incrementWinCount = async () => {
       try {
-        // const store = useStore();
-        // const userId = store.state.user?.id; // Use the store directly
-        const winCount = localStorage.getItem("winCount");
-        console.log(userId, "userId");
+        const winCount = parseInt(localStorage.getItem("winCount")) || 0;
+
         if (!userId) {
           throw new Error("User ID not found");
         }
+
         const response = await axios.post(
           "http://localhost:5000/api/users/increment-win",
           {
             userId,
-            winCount: parseInt(localStorage.getItem("winCount") || 10), //wincount + 1
+            winCount: winCount + 1, // Increment win count by 1
           }
         );
-        //const response = await axios.patch(`/increment-win/${userId}`);
+
         if (response.status === 200) {
-          toast.success("Win count has been updated!", {
+          // Update localStorage if API call is successful
+          localStorage.setItem("winCount", winCount + 1);
+          toast.success("Win count updated successfully!", {
             timeout: 2000,
             closeOnClick: true,
           });
@@ -165,7 +184,7 @@ export default {
           });
         }
       } catch (error) {
-        console.error(error); // Log the error for debugging
+        console.error("Error updating win count:", error);
         toast.error("An error occurred while updating win count.", {
           timeout: 2000,
           closeOnClick: true,
@@ -173,14 +192,31 @@ export default {
       }
     };
 
-    // Game status
+    // Trigger confetti explosion
+    const explodeConfetti = async () => {
+      showConfetti.value = false;
+      await nextTick();
+      showConfetti.value = true;
+    };
+
+    // Navigate to leaderboard
+    const goToLeaderboard = () => {
+      router.push("/leaderboard");
+    };
+
+    // Navigate to home
+    const goToHome = () => {
+      router.push("/home");
+    };
+
+    // Game status with win logic
     const status = computed(() => {
       if (remainingPairs.value === 0) {
-        const winCount = localStorage.getItem("winCount");
-        localStorage.setItem("winCount", parseInt(winCount) + 1);
         clearInterval(timerInterval);
         incrementWinCount();
-        return "Player Wins..!";
+        explodeConfetti();
+        showWinModal.value = true;
+        return "Player Wins!";
       } else {
         return `Remaining Pairs: ${remainingPairs.value}`;
       }
@@ -440,6 +476,10 @@ export default {
       lives,
       showLivesModal,
       logout,
+      showConfetti,
+      goToLeaderboard,
+      goToHome,
+      showWinModal,
     };
   },
 };
