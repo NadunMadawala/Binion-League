@@ -39,9 +39,9 @@
         <div class="easyContainer">
           <h3>Easy</h3>
           <img src="../assets/ModeImages/EasyMode.png" />
-          <li>Time : 60s</li>
-          <li>🍌 Lives: 3</li>
-          <button class="playbtn">Play</button>
+          <li>Time : 90s</li>
+          <li>🍌 Lives: 15</li>
+          <button class="playbtn" @click="goToEasyGame">Play</button>
         </div>
         <div class="mediumContainer">
           <h3>Medium</h3>
@@ -53,9 +53,9 @@
         <div class="hardContainer">
           <h3>Hard</h3>
           <img src="../assets/ModeImages/hardMode.png" />
-          <li>Time : 20s</li>
-          <li>🍌 Lives: 3</li>
-          <button class="playbtn">Play</button>
+          <li>Time : 30s</li>
+          <li>🍌 Lives: 10</li>
+          <button class="playbtn" @click="goToHardGame">Play</button>
         </div>
       </div>
     </div>
@@ -91,6 +91,12 @@ export default {
   methods: {
     goToMediumGame() {
       this.$router.push("/game");
+    },
+    goToEasyGame() {
+      this.$router.push("/easygame");
+    },
+    goToHardGame() {
+      this.$router.push("/hardgame");
     },
     logout() {
       // Clear the local storage to log out the user

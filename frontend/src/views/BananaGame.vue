@@ -24,6 +24,7 @@
         <h3>{{ username }}</h3>
       </div>
     </div>
+
     <div class="content-container">
       <!-- Game Content Section -->
       <div class="game-content">
@@ -102,9 +103,7 @@ export default {
       puzzleImage.value = null;
 
       try {
-        const response = await axios.get(
-          "https://marcconrad.com/uob/banana/api.php"
-        );
+        const response = await axios.get("http://localhost:5000/api/banana");
         if (response.data) {
           puzzleImage.value = response.data.question;
           correctAnswer.value = response.data.solution;
@@ -114,8 +113,8 @@ export default {
           resultMessage.value = "Failed to load puzzle. Please try again.";
         }
       } catch (error) {
-        resultMessage.value =
-          "Error contacting Banana API. Please try again later.";
+        console.error("Error contacting Banana API:", error);
+        resultMessage.value = `Error contacting Banana API: ${error.message}. Please try again later.`;
       } finally {
         loading.value = false;
       }
@@ -138,9 +137,6 @@ export default {
 
     // Method to check the user's answer
     const checkAnswer = () => {
-      console.log(Number(userAnswer.value), "user input");
-      console.log(correctAnswer.value, "answer");
-
       if (Number(userAnswer.value) === correctAnswer.value) {
         resultMessage.value = "Correct! You've earned a banana life 🍌";
         increaseLives();

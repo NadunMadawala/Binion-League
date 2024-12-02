@@ -1,5 +1,5 @@
 <template>
-  <div class="game">
+  <div class="EasyGame">
     <!-- Modal for Start Game notification -->
     <div v-if="showStartModal" class="modal-overlay">
       <div class="modal">
@@ -25,12 +25,12 @@
       />
       <div class="userName">
         <div class="user-avatar-container">
-          <img
+          <!-- <img
             v-if="avatar"
             :src="getAvatarImage(avatar)"
             alt="User Avatar"
             class="user-avatar"
-          />
+          /> -->
         </div>
         {{ username }}
       </div>
@@ -60,7 +60,7 @@
       <div class="scoreboard-container">
         <div class="game-detail">
           <h2>Score: {{ score }}</h2>
-          <div class="level">Mode: Medium</div>
+          <div class="level">Mode: Easy</div>
         </div>
         <div class="score-board">
           <div class="time">Time : {{ timer }}s</div>
@@ -80,8 +80,8 @@
         <div class="modal-buttons">
           <button class="modal-btn quit" @click="quitGame">Quit</button>
           <!-- <button class="modal-btn get-more-lifes" @click="getMoreLives">
-            Get More 🍌 Lifes
-          </button> -->
+              Get More 🍌 Lifes
+            </button> -->
         </div>
       </div>
     </div>
@@ -167,12 +167,12 @@ export default {
     const cardList = ref([]);
     const userSelection = ref([]);
     const score = ref(0);
-    const timer = ref(60);
+    const timer = ref(90);
     const showModal = ref(false);
     let timerInterval = null;
     const showStartModal = ref(true);
     const gameStarted = ref(false);
-    const lives = ref(parseInt(localStorage.getItem("lives")) || 10);
+    const lives = ref(parseInt(localStorage.getItem("lives")) || 15);
     const showLivesModal = ref(false);
     const showConfetti = ref(false);
     const showWinModal = ref(false);
@@ -243,8 +243,9 @@ export default {
         incrementWinCount();
         explodeConfetti();
         showWinModal.value = true;
+        // Reset the game after the winning modal is shown
         setTimeout(() => {
-          resetGame();
+          resetGame(); // Reset the game after 3 seconds
         }, 3000);
 
         return "Player Wins!";
@@ -255,7 +256,7 @@ export default {
 
     // Check life count on component load
     onMounted(() => {
-      lives.value = parseInt(localStorage.getItem("lives")) || 10;
+      lives.value = parseInt(localStorage.getItem("lives")) || 15;
       if (lives.value === 0) {
         showLivesModal.value = true;
         toast.info("No more lives. You need to get more lives to continue.", {
@@ -302,7 +303,7 @@ export default {
         return;
       }
       // Reset the lives to the initial value for a new game
-      lives.value = 10;
+      lives.value = 15;
       localStorage.setItem("lives", lives.value);
 
       buttonLabel.value = "Restart Game";
@@ -319,7 +320,7 @@ export default {
     };
 
     // Timer function
-    const startTimer = (initialTime = 60) => {
+    const startTimer = (initialTime = 90) => {
       clearInterval(timerInterval);
       timer.value = initialTime;
 
@@ -354,7 +355,7 @@ export default {
     // Quit the game and clear state
     const quitGame = () => {
       clearInterval(timerInterval);
-      clearGameState();
+      clearGameState(); // Clear game state before redirecting
       toast.info("You have quit the game", {
         timeout: 2000,
         closeOnClick: true,
@@ -385,7 +386,7 @@ export default {
       const savedCardList = JSON.parse(localStorage.getItem("cardList"));
       if (savedCardList && localStorage.getItem("gameStarted") === "true") {
         cardList.value = savedCardList;
-        timer.value = parseInt(localStorage.getItem("timer")) || 60;
+        timer.value = parseInt(localStorage.getItem("timer")) || 90;
         score.value = parseInt(localStorage.getItem("score")) || 0;
         gameStarted.value = localStorage.getItem("gameStarted") === "true";
         showStartModal.value =
@@ -481,6 +482,7 @@ export default {
             setTimeout(() => {
               cardList.value[cardOne.position].visible = false;
               cardList.value[cardTwo.position].visible = false;
+              // Decrement lives, update localStorage, and check if lives are out
               lives.value--;
               localStorage.setItem("lives", lives.value);
               if (lives.value <= 0) {
@@ -534,7 +536,7 @@ html body {
   margin-top: 0;
   padding: 0;
 }
-.game {
+.EasyGame {
   display: flex;
   flex-direction: column;
   height: 100vh;

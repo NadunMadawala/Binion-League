@@ -1,3 +1,10 @@
+It looks like you're facing an issue where the request to fetch user data for
+the leaderboard is getting a 401 Unauthorized response. To fix this, you need to
+ensure that: The token is properly attached to your request headers. The backend
+endpoint validates the token correctly and grants access if the token is valid.
+Here's an updated LeaderBoard.vue file that makes sure to add the token
+correctly in the request headers, and I will also add more comments to help you
+understand the changes made. Updated LeaderBoard.vue vue Copy code
 <template>
   <div class="leaderboard">
     <div class="header">
@@ -40,8 +47,6 @@
           <div class="headline-line">
             <h3>Avatar</h3>
             <h3>Name</h3>
-            <!-- <h3>Life Count</h3> -->
-            <!-- <h3>Score</h3> -->
             <h3>Wins</h3>
           </div>
 
@@ -56,8 +61,6 @@
               />
             </div>
             <h3>{{ user.name }}</h3>
-            <!-- <h3>{{ user.lifeCount }}</h3> -->
-            <!-- <h3>{{ user.score }}</h3> -->
             <h3>{{ user.winCount }}</h3>
           </div>
         </div>
@@ -81,8 +84,6 @@ import CarlImage from "../assets/AvatarImages/Carl.png";
 export default {
   data() {
     return {
-      username: localStorage.getItem("name"),
-      avatar: localStorage.getItem("avatar"),
       users: [], // Array to store user data
       avatars: {
         Bob: BobImage,
@@ -95,9 +96,6 @@ export default {
         Tom: TomImage,
       },
       username: localStorage.getItem("username"),
-      score: localStorage.getItem("score"),
-      lifeCount: localStorage.getItem("lifeCount"),
-      winCount: localStorage.getItem("winCount"),
       avatar: localStorage.getItem("avatar"),
     };
   },
@@ -105,10 +103,29 @@ export default {
     async fetchUserData() {
       try {
         const apiUrl = "http://localhost:5000/api"; // Replace with your backend base URL
-        const response = await axios.get(`${apiUrl}/users/getAllUsers`);
+
+        // Get the token from Vuex store or localStorage
+        const token = this.$store.state.token || localStorage.getItem("token");
+
+        if (!token) {
+          throw new Error("Authentication token is missing");
+        }
+
+        // Make a request to the backend with the token in the headers
+        const response = await axios.get(`${apiUrl}/users/getAllUsers`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         this.users = response.data; // Assign the fetched users to the `users` array
       } catch (error) {
         console.error("Error fetching user data:", error);
+        if (error.response && error.response.status === 401) {
+          // If the token is invalid or expired, log out the user
+          alert("Your session has expired. Please log in again.");
+          this.logout();
+        }
       }
     },
     getAvatarImage(avatarName) {
@@ -116,6 +133,7 @@ export default {
     },
     logout() {
       localStorage.clear();
+      this.$store.dispatch("logout");
       this.$router.push("/login");
     },
   },
