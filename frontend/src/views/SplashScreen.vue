@@ -1,6 +1,5 @@
 <template>
   <div class="splash-screen">
-    <!-- <img src="../assets/Splash screen.png" alt="Binions League Logo" /> -->
     <img
       src="../assets/Corrected logo without bg.png"
       alt="logoWithNoBG"
@@ -18,7 +17,6 @@
 export default {
   name: "SplashScreen",
   mounted() {
-    // Navigate to Register page after 5 seconds
     setTimeout(() => {
       this.$router.push("/login");
     }, 5000);

@@ -722,7 +722,6 @@ h4 {
 }
 
 .card {
-  /* border: 5px solid #ccc; */
   border: none;
 }
 
@@ -819,3 +818,9 @@ h4 {
   transform: scale(1.1);
 }
 </style>
+
+<!-- References-:
+CardFlip and matching logic-: https://youtu.be/WQa9-4K3me4 
+vuetoastification-: https://vue-toastification.maronato.dev/
+ConfettiExplosion-: https://www.npmjs.com/package/vue-confetti-explosion
+-->
