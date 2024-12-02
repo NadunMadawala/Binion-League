@@ -4,12 +4,11 @@ const User = require("../models/User");
 
 // Controller to update user's avatar
 const updateUserAvatar = async (req, res) => {
-  const { userId, avatar } = req.body; // Changed 'name' to 'userId' to use userId instead
+  const { avatar } = req.body; // Fetch avatar from request body
+  const userId = req.user.id; // Get userId from JWT payload after authentication
 
-  if (!userId || !avatar) {
-    return res
-      .status(400)
-      .json({ msg: "Please provide both userId and avatar" });
+  if (!avatar) {
+    return res.status(400).json({ msg: "Please provide an avatar" });
   }
 
   try {
@@ -30,14 +29,15 @@ const updateUserAvatar = async (req, res) => {
   }
 };
 
+// Controller to increment user's win count
 const incrementWinCount = async (req, res) => {
-  const { userId, winCount } = req.body;
-  //const { userId } = new ObjectId(req.params);
+  const userId = req.user.id; // Get userId from JWT payload after authentication
 
   try {
+    // Increment winCount by 1
     const user = await User.findByIdAndUpdate(
       userId,
-      { winCount }, // Increment winCount by 1
+      { $inc: { winCount: 1 } },
       { new: true }
     );
 
@@ -45,17 +45,18 @@ const incrementWinCount = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    res.status(200).json({ msg: "Win count incremented", user });
+    res.status(200).json({ msg: "Win count incremented successfully", user });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "Server error. Please try again later." });
   }
 };
-// Controller to get all users
+
+// Controller to get all users (e.g., for leaderboard)
 const getAllUsers = async (req, res) => {
   try {
-    // Fetch all users from the database
-    const users = await User.find({}).sort({ winCount: -1 }); // Fetch all users without any filters
+    // Fetch all users sorted by winCount in descending order
+    const users = await User.find({}).sort({ winCount: -1 });
 
     if (!users || users.length === 0) {
       return res.status(404).json({ msg: "No users found" });
@@ -67,9 +68,29 @@ const getAllUsers = async (req, res) => {
     res.status(500).json({ msg: "Server error. Please try again later." });
   }
 };
+// Controller to get user details based on the authenticated user
+const getUserDetails = async (req, res) => {
+  try {
+    // req.user should have the userId if JWT authentication was successful
+    const userId = req.user.id;
+
+    // Find the user by ID
+    const user = await User.findById(userId).select("-password"); // Exclude password
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("Error fetching user details:", err);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
 
 module.exports = {
   updateUserAvatar,
   incrementWinCount,
   getAllUsers,
+  getUserDetails,
 };

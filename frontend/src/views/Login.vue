@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "../utils/axiosInstance"; // Use the axios instance with token headers
 import { useToast } from "vue-toastification";
 
 export default {
@@ -48,13 +48,16 @@ export default {
         if (response.data.msg === "User login successfully") {
           this.toast.success("Login successful!");
 
-          // Store userId, username, and avatar selection status
+          // Store userId, username, avatar, etc. in Vuex and localStorage
           this.$store.commit("setUser", {
             id: response.data.userId,
-            name: response.data.name,
-            hasSelectedAvatar: response.data.hasSelectedAvatar,
+            name: response.data.username,
+            avatar: response.data.avatar,
             winCount: response.data.winCount,
+            lifeCount: response.data.lifeCount,
+            score: response.data.score,
           });
+          this.$store.commit("setToken", response.data.token);
 
           localStorage.setItem("userId", response.data.userId);
           localStorage.setItem("username", response.data.username);
@@ -63,18 +66,22 @@ export default {
           localStorage.setItem("lifeCount", response.data.lifeCount);
           localStorage.setItem("score", response.data.score);
 
-          this.$store.commit("setToken", response.data.token);
+          // Debugging - Check if the store and localStorage have been set correctly
+          console.log("User state after login:", this.$store.state.user);
+          console.log("Local storage set successfully");
 
-          // Check if the user has already selected an avatar
+          // Redirect to the home page or avatar selection based on avatar status
           if (response.data.avatar) {
-            // Redirect to the home page
             this.$router.push("/home");
           } else {
-            // Otherwise, redirect to the avatar selection page
             this.$router.push("/avatar-selection");
           }
+        } else {
+          // Handle the error message if the login was unsuccessful
+          this.toast.error("Login failed. Please try again.");
         }
       } catch (error) {
+        console.error("Error during login:", error);
         this.toast.error(
           error.response?.data?.msg || "Login failed. Please try again."
         );
@@ -91,6 +98,7 @@ export default {
 </script>
 
 <style scoped>
+/* The styling remains unchanged */
 html,
 body,
 #app {

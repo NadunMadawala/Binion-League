@@ -9,6 +9,8 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
 // Register route
 router.post(
   "/register",
@@ -21,10 +23,8 @@ router.post(
     ).isLength({ min: 6 }),
   ],
   async (req, res) => {
-    console.log("start");
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log(errors, "validation error");
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -35,7 +35,7 @@ router.post(
       if (user) {
         return res.status(400).json({ msg: "User already exists" });
       }
-      console.log("new user creation");
+
       user = new User({ name, email, password });
 
       // Encrypt password
@@ -45,19 +45,11 @@ router.post(
       await user.save();
 
       // Return jsonwebtoken
-      // const payload = { user: { id: user.id } };
-      // jwt.sign(
-      //   payload,
-      //   process.env.JWT_SECRET,
-      //   { expiresIn: 3600 },
-      //   (err, token) => {
-      //     if (err) throw err;
-      //     res.json({ token });
-      //   }
-      // );
-
-      // Return success message
-      res.json({ msg: "User registered successfully" });
+      const payload = { user: { id: user.id } };
+      jwt.sign(payload, JWT_SECRET, { expiresIn: 3600 }, (err, token) => {
+        if (err) throw err;
+        res.json({ token, msg: "User registered successfully" });
+      });
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Server error");
@@ -93,23 +85,18 @@ router.post(
 
       // Return jsonwebtoken
       const payload = { user: { id: user.id } };
-      // jwt.sign(
-      //   payload,
-      //   process.env.JWT_SECRET,
-      //   { expiresIn: 3600 },
-      //   (err, token) => {
-      //     if (err) throw err;
-      //     res.json({ token });
-      //   }
-      // );
-      res.json({
-        msg: "User login successfully",
-        userId: user._id,
-        username: user.name,
-        avatar: user.avatar,
-        winCount: user.winCount,
-        lifeCount: user.lifeCount,
-        score: user.score,
+      jwt.sign(payload, JWT_SECRET, { expiresIn: 3600 }, (err, token) => {
+        if (err) throw err;
+        res.json({
+          token,
+          msg: "User login successfully",
+          userId: user._id,
+          username: user.name,
+          avatar: user.avatar,
+          winCount: user.winCount,
+          lifeCount: user.lifeCount,
+          score: user.score,
+        });
       });
     } catch (err) {
       console.error(err.message);

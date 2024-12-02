@@ -10,6 +10,8 @@ import Home from "../views/Home.vue";
 import LeaderBoard from "../views/LeaderBoard.vue";
 import Account from "../views/Account.vue";
 import Tutorial from "../views/Tutorial.vue";
+import EasyGame from "../views/EasyGame.vue";
+import HardGame from "../views/HardGame.vue";
 
 const routes = [
   {
@@ -54,6 +56,22 @@ const routes = [
     path: "/game",
     name: "Game",
     component: Game,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/easygame",
+    name: "EasyGame",
+    component: EasyGame,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/hardgame",
+    name: "HardGame",
+    component: HardGame,
     meta: {
       requiresAuth: true,
     },
