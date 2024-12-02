@@ -1,11 +1,8 @@
-// File: controllers/userController.js
-
 const User = require("../models/User");
 
 // Controller to update user's avatar
 const updateUserAvatar = async (req, res) => {
-  const { userId, avatar } = req.body; // Changed 'name' to 'userId' to use userId instead
-
+  const { userId, avatar } = req.body;
   if (!userId || !avatar) {
     return res
       .status(400)

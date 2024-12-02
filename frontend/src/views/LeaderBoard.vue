@@ -40,8 +40,8 @@
           <div class="headline-line">
             <h3>Avatar</h3>
             <h3>Name</h3>
-            <!-- <h3>Life Count</h3>
-            <h3>Score</h3> -->
+            <!-- <h3>Life Count</h3> -->
+            <!-- <h3>Score</h3> -->
             <h3>Wins</h3>
           </div>
 
@@ -56,8 +56,8 @@
               />
             </div>
             <h3>{{ user.name }}</h3>
-            <!-- <h3>{{ user.lifeCount }}</h3>
-            <h3>{{ user.score }}</h3> -->
+            <!-- <h3>{{ user.lifeCount }}</h3> -->
+            <!-- <h3>{{ user.score }}</h3> -->
             <h3>{{ user.winCount }}</h3>
           </div>
         </div>

@@ -61,8 +61,7 @@
       <div class="scoreboard-container">
         <div class="game-detail">
           <h2>Score: {{ score }}</h2>
-          <div class="level">Mode:</div>
-          <div class="level">Level:</div>
+          <div class="level">Mode: Medium</div>
         </div>
         <div class="score-board">
           <div class="time">Time : {{ timer }}s</div>
@@ -141,7 +140,7 @@ export default {
     const userId = localStorage.getItem("userId");
     const avatarImage = ref(localStorage.getItem("avatarImage"));
     const buttonLabel = ref("Start");
-    const timer = ref(1000);
+    const timer = ref(60);
     const showModal = ref(false);
     let timerInterval = null;
     const showStartModal = ref(true);
@@ -149,7 +148,7 @@ export default {
     const score = ref(0);
     const router = useRouter();
     const toast = useToast();
-    const lives = ref(parseInt(localStorage.getItem("lives")) || 100);
+    const lives = ref(parseInt(localStorage.getItem("lives")) || 10);
     const showLivesModal = ref(false);
     const showConfetti = ref(false);
     const showWinModal = ref(false);
@@ -224,14 +223,15 @@ export default {
 
     // Check life count on component load
     onMounted(() => {
-      if (lives.value <= 0) {
+      lives.value = parseInt(localStorage.getItem("lives")) || 10;
+      if (lives.value === 0) {
         showLivesModal.value = true;
         toast.info("No more lives. You need to get more lives to continue.", {
           timeout: 2000,
           closeOnClick: true,
         });
       } else {
-        loadGameState(); // Load saved game state if available
+        loadGameState();
       }
     });
 
@@ -269,6 +269,10 @@ export default {
         );
         return;
       }
+      // Reset the lives to the initial value for a new game
+      lives.value = 10;
+      localStorage.setItem("lives", lives.value);
+
       buttonLabel.value = "Restart Game";
       shuffleCards();
       cardList.value = cardList.value.map((card, index) => ({
@@ -283,7 +287,7 @@ export default {
     };
 
     // Timer function
-    const startTimer = (initialTime = 1000) => {
+    const startTimer = (initialTime = 60) => {
       clearInterval(timerInterval);
       timer.value = initialTime;
 
@@ -366,6 +370,9 @@ export default {
 
     // Get more lives
     const getMoreLives = () => {
+      lives.value = 0;
+      localStorage.setItem("lives", lives.value);
+
       saveGameState();
       showModal.value = false;
       showLivesModal.value = false;
@@ -437,15 +444,21 @@ export default {
             cardList.value[cardOne.position].matched = true;
             cardList.value[cardTwo.position].matched = true;
             score.value += 1;
+            localStorage.setItem("score", score.value);
           } else {
             setTimeout(() => {
               cardList.value[cardOne.position].visible = false;
               cardList.value[cardTwo.position].visible = false;
+              // Decrement lives, update localStorage, and check if lives are out
               lives.value--;
               localStorage.setItem("lives", lives.value);
               if (lives.value <= 0) {
                 showLivesModal.value = true;
                 clearInterval(timerInterval);
+                toast.info("You need to get more lives to continue.", {
+                  timeout: 2000,
+                  closeOnClick: true,
+                });
               }
             }, 1000);
           }
