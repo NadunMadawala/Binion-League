@@ -1,6 +1,5 @@
 <template>
   <div class="banana-game-screen">
-    <!-- Header Section -->
     <div class="header">
       <img
         src="../assets/Corrected logo without bg.png"

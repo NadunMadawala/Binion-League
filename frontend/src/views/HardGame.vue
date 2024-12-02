@@ -23,17 +23,6 @@
         alt="logoWithNoBG"
         class="headerName"
       />
-      <div class="userName">
-        <div class="user-avatar-container">
-          <!-- <img
-              v-if="avatar"
-              :src="getAvatarImage(avatar)"
-              alt="User Avatar"
-              class="user-avatar"
-            /> -->
-        </div>
-        {{ username }}
-      </div>
     </div>
     <h3>Choose correct pairs..!</h3>
     <div class="game-container">
@@ -79,9 +68,6 @@
         <p>You have run out of time. Would you like to continue?</p>
         <div class="modal-buttons">
           <button class="modal-btn quit" @click="quitGame">Quit</button>
-          <!-- <button class="modal-btn get-more-lifes" @click="getMoreLives">
-                Get More 🍌 Lifes
-              </button> -->
         </div>
       </div>
     </div>
@@ -243,9 +229,8 @@ export default {
         incrementWinCount();
         explodeConfetti();
         showWinModal.value = true;
-        // Reset the game after the winning modal is shown
         setTimeout(() => {
-          resetGame(); // Reset the game after 3 seconds
+          resetGame();
         }, 3000);
 
         return "Player Wins!";
@@ -355,7 +340,7 @@ export default {
     // Quit the game and clear state
     const quitGame = () => {
       clearInterval(timerInterval);
-      clearGameState(); // Clear game state before redirecting
+      clearGameState();
       toast.info("You have quit the game", {
         timeout: 2000,
         closeOnClick: true,
@@ -392,7 +377,6 @@ export default {
         showStartModal.value =
           localStorage.getItem("showStartModal") === "true" ? true : false;
 
-        // Resume the timer if the game is already started
         if (gameStarted.value) {
           startTimer(timer.value);
         }
@@ -482,7 +466,6 @@ export default {
             setTimeout(() => {
               cardList.value[cardOne.position].visible = false;
               cardList.value[cardTwo.position].visible = false;
-              // Decrement lives, update localStorage, and check if lives are out
               lives.value--;
               localStorage.setItem("lives", lives.value);
               if (lives.value <= 0) {
@@ -724,7 +707,6 @@ h4 {
 }
 
 .card {
-  /* border: 5px solid #ccc; */
   border: none;
 }
 
@@ -821,3 +803,9 @@ h4 {
   transform: scale(1.1);
 }
 </style>
+
+<!-- References-:
+CardFlip and matching logic-: https://youtu.be/WQa9-4K3me4 
+vuetoastification-: https://vue-toastification.maronato.dev/
+ConfettiExplosion-: https://www.npmjs.com/package/vue-confetti-explosion
+-->

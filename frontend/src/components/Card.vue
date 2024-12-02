@@ -75,13 +75,11 @@ export default {
 <template>
   <div class="card" :class="flippedStyles" @click="selectCard">
     <div v-if="visible" class="card-face is-front">
-      <!-- {{ value }} -->
        <img :src="getImagePath(value)" :alt="value" class="avatar-image"/>
       <img v-if="matched" src="../assets/check.png" class="checkmark"> </img>
     </div>
 
     <div v-else class="card-face is-back">
-      <!-- Back -->
     </div>
   </div>
 </template>

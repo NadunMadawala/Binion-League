@@ -1,10 +1,3 @@
-It looks like you're facing an issue where the request to fetch user data for
-the leaderboard is getting a 401 Unauthorized response. To fix this, you need to
-ensure that: The token is properly attached to your request headers. The backend
-endpoint validates the token correctly and grants access if the token is valid.
-Here's an updated LeaderBoard.vue file that makes sure to add the token
-correctly in the request headers, and I will also add more comments to help you
-understand the changes made. Updated LeaderBoard.vue vue Copy code
 <template>
   <div class="leaderboard">
     <div class="header">
@@ -84,7 +77,7 @@ import CarlImage from "../assets/AvatarImages/Carl.png";
 export default {
   data() {
     return {
-      users: [], // Array to store user data
+      users: [],
       avatars: {
         Bob: BobImage,
         Carl: CarlImage,
@@ -102,7 +95,7 @@ export default {
   methods: {
     async fetchUserData() {
       try {
-        const apiUrl = "http://localhost:5000/api"; // Replace with your backend base URL
+        const apiUrl = "http://localhost:5000/api";
 
         // Get the token from Vuex store or localStorage
         const token = this.$store.state.token || localStorage.getItem("token");
@@ -149,7 +142,6 @@ export default {
 </script>
 
 <style scoped>
-/* Add your CSS here */
 .leaderboard {
   display: flex;
   flex-direction: column;
@@ -281,13 +273,13 @@ a {
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
   display: flex;
-  flex-direction: column; /* Stack items vertically */
-  align-items: center; /* Center-align content horizontally */
+  flex-direction: column;
+  align-items: center;
   gap: 20px;
-  width: 65%; /* Adjust width as needed */
-  height: 400px; /* Set a fixed height for the container */
-  overflow-y: auto; /* Enable vertical scrolling */
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  width: 65%;
+  height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .headline-line,
@@ -302,7 +294,7 @@ a {
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
 .headline-line h3 {
-  color: #ffd700; /* Different color for header */
+  color: #ffd700;
   font-weight: bold;
 }
 
