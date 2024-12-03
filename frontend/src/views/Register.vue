@@ -26,6 +26,7 @@
 import axios from "axios";
 import { useToast } from "vue-toastification";
 import { mapActions } from "vuex";
+import { nextTick } from "vue";
 
 export default {
   data() {
@@ -48,6 +49,7 @@ export default {
           );
         }
 
+        // API Call for registration
         const response = await axios.post(`${apiUrl}/api/auth/register`, {
           name: this.name,
           email: this.email,
@@ -56,11 +58,9 @@ export default {
 
         // Handle successful registration and token storage
         if (response.data.token) {
-          toast.success("Registration successful! Redirecting to home page...");
-
-          // Set user and token in Vuex
-          this.setToken(response.data.token);
-          this.setUser(response.data.user);
+          // Set user and token in Vuex store
+          await this.setToken(response.data.token);
+          await this.setUser(response.data.user);
 
           // Store in localStorage for persistence
           localStorage.setItem("token", response.data.token);
@@ -71,7 +71,13 @@ export default {
           localStorage.setItem("lifeCount", response.data.user.lifeCount || 3);
           localStorage.setItem("score", response.data.user.score || 0);
 
-          // Redirect to the home page after registration
+          // Show success toast
+          toast.success("Registration successful! Redirecting to home page...");
+
+          // Use nextTick to ensure redirection happens after the state update is complete
+          await nextTick();
+
+          // Redirect to the home page after successful registration
           this.$router.push("/home");
         }
       } catch (error) {

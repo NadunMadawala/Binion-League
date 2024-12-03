@@ -19,7 +19,7 @@ export default {
   mounted() {
     setTimeout(() => {
       this.$router.push("/login");
-    }, 5000);
+    }, 10000);
   },
 };
 </script>
